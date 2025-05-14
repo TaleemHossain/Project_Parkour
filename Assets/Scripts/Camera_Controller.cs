@@ -5,7 +5,8 @@ using UnityEngine;
 public class Camera_Controller : MonoBehaviour
 {
     [SerializeField] Transform followTarget;
-    [SerializeField] float mouseSensitivity = 5f;
+    [SerializeField] float mouseSensitivityX = 5f;
+    [SerializeField] float mouseSensitivityY = 5f;
     [SerializeField] float distance = 5f;
     [SerializeField] float minVerticalAngle = -20f;
     [SerializeField] float maxVerticalAngle = 45f;
@@ -19,25 +20,27 @@ public class Camera_Controller : MonoBehaviour
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Locked;
     }
-
-    private void Update()
+    private void OnDisable()
     {
-        if (invertY == true)
-        {
-            rotationY += -1 * Input.GetAxis("Mouse X") * mouseSensitivity;
-        }
-        else
-        {
-            rotationY += Input.GetAxis("Mouse X") * mouseSensitivity;
-        }
+        Cursor.visible = true;
+        Cursor.lockState = CursorLockMode.None;
+    }
+    private void Awake()
+    {
         if (invertX == true)
         {
-            rotationX += -1 * Input.GetAxis("Mouse Y") * mouseSensitivity;
+            mouseSensitivityY *= -1;
         }
-        else
+        if (invertY == true)
         {
-            rotationX += Input.GetAxis("Mouse Y") * mouseSensitivity;
+            mouseSensitivityX *= -1;
         }
+    }
+    private void Update()
+    {
+
+        rotationY += Input.GetAxis("Mouse X") * mouseSensitivityY;
+        rotationX += Input.GetAxis("Mouse Y") * mouseSensitivityX;
         rotationX = Mathf.Clamp(rotationX, minVerticalAngle, maxVerticalAngle);
         var targetRotation = Quaternion.Euler(rotationX, rotationY, 0);
         var focusPosition = followTarget.position + new Vector3(framingOffset.x, framingOffset.y, 0);
@@ -45,5 +48,5 @@ public class Camera_Controller : MonoBehaviour
         transform.rotation = targetRotation;
         // transform.LookAt(focusPosition.position);
     }
-
+    public Quaternion PlanarRotation => Quaternion.Euler(0, rotationY, 0);
 }
