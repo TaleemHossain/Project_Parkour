@@ -20,11 +20,6 @@ public class Camera_Controller : MonoBehaviour
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Locked;
     }
-    private void OnDisable()
-    {
-        Cursor.visible = true;
-        Cursor.lockState = CursorLockMode.None;
-    }
     private void Awake()
     {
         if (invertX == true)
@@ -38,7 +33,11 @@ public class Camera_Controller : MonoBehaviour
     }
     private void Update()
     {
-
+        if (followTarget == null)
+        {
+            Debug.LogError("Follow target is not assigned in Camera_Controller");
+            return;
+        }
         rotationY += Input.GetAxis("Mouse X") * mouseSensitivityY;
         rotationX += Input.GetAxis("Mouse Y") * mouseSensitivityX;
         rotationX = Mathf.Clamp(rotationX, minVerticalAngle, maxVerticalAngle);
