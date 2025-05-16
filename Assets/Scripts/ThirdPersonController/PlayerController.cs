@@ -12,7 +12,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] float groundCheckRadius = 0.1f;
     [SerializeField] Vector3 groundCheckOffset;
     [SerializeField] LayerMask groundLayer;
-    bool isGrounded;
+    public bool isGrounded;
     bool hasControl = true;
     float ySpeed = 0f;
     Camera_Controller cameraController;
