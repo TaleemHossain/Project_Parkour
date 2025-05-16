@@ -4,21 +4,36 @@ using UnityEngine;
 
 public class ParkourController : MonoBehaviour
 {
+    PlayerController playerController;
     EnvironmentScanner environmentScanner;
+    Animator animator;
+    bool isAction = false;
     private void Awake()
     {
+        playerController = GetComponent<PlayerController>();
         environmentScanner = GetComponent<EnvironmentScanner>();
+        animator = GetComponent<Animator>();
     }
     private void Update()
     {
-        var hitData = environmentScanner.ObstackleCheck();
-        // if (hitData.forwardHitFound)
-        // {
-        //     Debug.Log("Obstacle Found: " + hitData.forwardHitInfo.collider.name + " at " + hitData.forwardHitInfo.point);
-        // }
-        // else
-        // {
-        //     Debug.Log("No Obstacle Found");
-        // }
-    }   
+        if (Input.GetKeyDown(KeyCode.Space) && !isAction)
+        {
+            var hitData = environmentScanner.ObstackleCheck();
+            if (hitData.forwardHitFound)
+            {
+                StartCoroutine(DoParkourAction());
+            }
+        }
+    }
+    IEnumerator DoParkourAction()
+    {
+        isAction = true;
+        playerController.SetControl(false);
+        animator.CrossFade("SteppingUp", 0.2f);
+        yield return null;
+        var animState = animator.GetNextAnimatorStateInfo(0);
+        yield return new WaitForSeconds(animState.length);
+        playerController.SetControl(true);
+        isAction = false;
+    }
 }
