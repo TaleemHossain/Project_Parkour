@@ -1,5 +1,7 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using UnityEngine;
 
 public class ParkourController : MonoBehaviour
@@ -28,13 +30,13 @@ public class ParkourController : MonoBehaviour
             {
                 if (action.CheckIfPossible(hitData, transform))
                 {
-                    Debug.Log("Parkour action possible");
+                    // Debug.Log("Parkour action possible");
                     StartCoroutine(DoParkourAction(action));
                     break;
                 }
                 else
                 {
-                    Debug.Log("Parkour action not possible");
+                    // Debug.Log("Parkour action not possible");
                 }
             }
         }
@@ -48,14 +50,39 @@ public class ParkourController : MonoBehaviour
         var animState = animator.GetNextAnimatorStateInfo(0);
         if (animState.IsName(action.AnimName))
         {
-            Debug.Log("Parkour action in progress");
+            // Debug.Log("Parkour action in progress");
         }
         else
         {
             Debug.LogError("Wrong Animation name");
         }
-        yield return new WaitForSeconds(animState.length);
+        float timer = 0f;
+        while (timer <= animState.length)
+        {
+            timer += Time.deltaTime;
+            if (action.RotateToObstackle)
+            {
+                transform.rotation = Quaternion.RotateTowards(transform.rotation, action.TargetRotation, playerController.rotationSpeed * Time.deltaTime);
+            }
+            if (action.EnableTargetMatching)
+            {
+                MatchTarget(action);
+            }
+            yield return null;
+        }
         playerController.SetControl(true);
         isAction = false;
+    }
+    void MatchTarget(ParkourAction action)
+    {
+        if (animator.isMatchingTarget)
+        {
+            return;
+        }
+        else
+        {
+            animator.MatchTarget(action.MatchPosition, transform.rotation, action.MatchBodyPart, new MatchTargetWeightMask(new Vector3(0, 1, 0), 0), action.MatchStartTime, action.MatchTargetTime);
+
+        }
     }
 }

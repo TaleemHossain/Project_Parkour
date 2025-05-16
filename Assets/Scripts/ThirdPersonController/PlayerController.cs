@@ -6,7 +6,7 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour
 {
     [SerializeField] float moveSpeed = 5f;
-    [SerializeField] float rotationSpeed = 720f;
+    [SerializeField] public float rotationSpeed = 720f;
 
     [Header("Ground Check settings")]
     [SerializeField] float groundCheckRadius = 0.1f;

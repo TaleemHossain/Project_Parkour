@@ -4,8 +4,16 @@ public class ParkourAction : ScriptableObject
 {
     [SerializeField] string animName;
     [SerializeField] bool ObstacleRequired;
+    [SerializeField] bool rotateToObstacle;
     [SerializeField] float minHeight;
     [SerializeField] float maxHeight;
+    [Header("Target Matching")]
+    [SerializeField] bool enableTargetMatching = true;
+    [SerializeField] AvatarTarget matchBodyPart;
+    [SerializeField] float matchStartTime;
+    [SerializeField] float matchTargetTime;
+    public Quaternion TargetRotation { get; set; }
+    public Vector3 MatchPosition { get; set; }
     public bool CheckIfPossible(EnvironmentScanner.ObstackleHitData hitDataInfo, Transform player)
     {
         if (!hitDataInfo.forwardHitFound)
@@ -30,8 +38,21 @@ public class ParkourAction : ScriptableObject
             {
                 return false;
             }
+            if (rotateToObstacle)
+            {
+                TargetRotation = Quaternion.LookRotation(-hitDataInfo.forwardHitInfo.normal);
+            }
+            if (enableTargetMatching)
+            {
+                MatchPosition = hitDataInfo.heightHitInfo.point;
+            }
             return true;
         }
     }
     public string AnimName => animName;
+    public bool RotateToObstackle => rotateToObstacle;
+    public bool EnableTargetMatching => enableTargetMatching;
+    public AvatarTarget MatchBodyPart => matchBodyPart;
+    public float MatchStartTime => matchStartTime;
+    public float MatchTargetTime => matchTargetTime;
 }
