@@ -61,9 +61,9 @@ public class PlayerController : MonoBehaviour
     {
         isGrounded = Physics.CheckSphere(transform.TransformPoint(groundCheckOffset), groundCheckRadius, groundLayer);
     }
-    private void OnDrawGizmosSelected()
-    {
-        Gizmos.color = new Color(0, 1, 0, 0.5f);
-        Gizmos.DrawSphere(transform.TransformPoint(groundCheckOffset), groundCheckRadius);
-    }
+    // private void OnDrawGizmosSelected()
+    // {
+    //     Gizmos.color = new Color(0, 1, 0, 0.5f);
+    //     Gizmos.DrawSphere(transform.TransformPoint(groundCheckOffset), groundCheckRadius);
+    // }
 }
