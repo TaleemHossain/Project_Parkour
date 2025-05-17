@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 374cdbf7873fbec4a979b702310a838f
+guid: 1903283b8f58f20449a41bed4b89bd04
 ModelImporter:
   serializedVersion: 22200
   internalIDToNameTable: []
@@ -31,7 +31,7 @@ ModelImporter:
     extraUserProperties: []
     clipAnimations:
     - serializedVersion: 16
-      name: FallingToLanding
+      name: Falling
       takeName: mixamo.com
       internalID: -203655887218126122
       firstFrame: 0
@@ -42,12 +42,12 @@ ModelImporter:
       cycleOffset: 0
       loop: 0
       hasAdditiveReferencePose: 0
-      loopTime: 0
-      loopBlend: 0
+      loopTime: 1
+      loopBlend: 1
       loopBlendOrientation: 1
       loopBlendPositionY: 1
       loopBlendPositionXZ: 1
-      keepOriginalOrientation: 0
+      keepOriginalOrientation: 1
       keepOriginalPositionY: 1
       keepOriginalPositionXZ: 1
       heightFromFeet: 0

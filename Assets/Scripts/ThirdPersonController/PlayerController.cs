@@ -14,7 +14,8 @@ public class PlayerController : MonoBehaviour
     [SerializeField] LayerMask groundLayer;
     public bool isGrounded;
     bool hasControl = true;
-    public bool isOnLedge { get; set; }
+    public bool IsOnLedge { get; set; }
+    public EnvironmentScanner.LedgeData LedgeData { get; set; }
     float ySpeed = 0f;
     Camera_Controller cameraController;
     Animator animator;
@@ -30,6 +31,7 @@ public class PlayerController : MonoBehaviour
         characterController = GetComponent<CharacterController>();
         if (characterController == null) Debug.LogError("CharacterController component is missing on " + gameObject.name);
         environmentScanner = GetComponent<EnvironmentScanner>();
+        if (environmentScanner == null) Debug.LogError("EnvironmentScanner component is missing on " + gameObject.name);
     }
     private void Update()
     {
@@ -40,25 +42,24 @@ public class PlayerController : MonoBehaviour
         Vector3 direction = new Vector3(horizontal, 0, vertical).normalized;
         var moveDir = cameraController.PlanarRotation * direction;
         if (!hasControl) return;
+        var velocity = Vector3.zero;
         GroundCheck();
+        animator.SetBool("isGrounded", isGrounded);
         if (!isGrounded)
         {
             ySpeed += Physics.gravity.y * Time.deltaTime;
+            velocity = transform.forward * moveSpeed / 2;
         }
         else
         {
+            velocity = moveDir * moveSpeed;
             ySpeed = -0.1f;
-            isOnLedge = environmentScanner.LedgeCheck(moveDir);
-            if (isOnLedge)
+            IsOnLedge = environmentScanner.LedgeCheck(moveDir, out EnvironmentScanner.LedgeData ledgeData);
+            if (IsOnLedge)
             {
-                Debug.Log("On Ledge");
-            }
-            else
-            {
-                Debug.Log("Not on Ledge");
+                LedgeData = ledgeData;
             }
         }
-        var velocity = moveDir * moveSpeed;
         velocity.y = ySpeed;
         characterController.Move(velocity * Time.deltaTime);
 

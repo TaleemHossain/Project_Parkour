@@ -2,11 +2,13 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class ParkourController : MonoBehaviour
 {
     [SerializeField] List<ParkourAction> parkourActions;
+    [SerializeField] ParkourAction JumpDownAction;
     PlayerController playerController;
     EnvironmentScanner environmentScanner;
     Animator animator;
@@ -33,6 +35,14 @@ public class ParkourController : MonoBehaviour
                     StartCoroutine(DoParkourAction(action));
                     break;
                 }
+            }
+        }
+        if (playerController.IsOnLedge && !isAction && !hitData.forwardHitFound && Input.GetKeyDown(KeyCode.Space))
+        {
+            if (playerController.LedgeData.angle <= 50f)
+            {
+                playerController.IsOnLedge = false;
+                StartCoroutine(DoParkourAction(JumpDownAction));
             }
         }
     }

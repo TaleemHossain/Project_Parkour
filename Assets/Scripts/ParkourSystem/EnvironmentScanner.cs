@@ -4,10 +4,12 @@ using UnityEngine;
 
 public class EnvironmentScanner : MonoBehaviour
 {
+    [Header("Obstacle Scanning")]
     [SerializeField] Vector3 forwardRayOffset = new Vector3(0f, 0.25f, 0f);
     [SerializeField] float forwardRayLength = 1f;
     [SerializeField] LayerMask obstacleLayerMask;
     [SerializeField] float heightRayLength = 4f;
+    [Header("Ledge Scanning")]
     [SerializeField] float ledgeCheckRayOffset = 1f;
     [SerializeField] float ledgeCheckRayLength = 10f;
     [SerializeField] float minimumHeightForLedge = 0.75f;
@@ -18,7 +20,13 @@ public class EnvironmentScanner : MonoBehaviour
         public RaycastHit forwardHitInfo;
         public RaycastHit heightHitInfo;
     }
-
+    public struct LedgeData
+    {
+        public float height;
+        public float angle;
+        public RaycastHit ledgeHitInfo;
+        public RaycastHit surfaceHitInfo;
+    }
     public ObstackleHitData ObstackleCheck()
     {
         var hitData = new ObstackleHitData();
@@ -31,33 +39,30 @@ public class EnvironmentScanner : MonoBehaviour
         }
         return hitData;
     }
-    public bool LedgeCheck(Vector3 moveDir)
+    public bool LedgeCheck(Vector3 moveDir, out LedgeData ledgeData)
     {
+        ledgeData = new LedgeData();
         if (moveDir == Vector3.zero)
         {
-            // return false;
-            var origin = transform.position + moveDir * ledgeCheckRayOffset + Vector3.up;
-            Debug.DrawRay(origin, Vector3.down * ledgeCheckRayLength, Color.green);
-            if (Physics.Raycast(origin, Vector3.down, out RaycastHit hit, ledgeCheckRayLength, obstacleLayerMask))
-            {
-                float height = transform.position.y - hit.point.y;
-                if (height > minimumHeightForLedge)
-                {
-                    return true;
-                }
-            }
             return false;
         }
         else
         {
             var origin = transform.position + moveDir * ledgeCheckRayOffset + Vector3.up;
-            Debug.DrawRay(origin, Vector3.down * ledgeCheckRayLength, Color.green);
             if (Physics.Raycast(origin, Vector3.down, out RaycastHit hit, ledgeCheckRayLength, obstacleLayerMask))
             {
-                float height = transform.position.y - hit.point.y;
-                if (height > minimumHeightForLedge)
+                ledgeData.ledgeHitInfo = hit;
+                var SurfaceRayOrigin = transform.position + moveDir - new Vector3(0, 0.1f, 0);
+                if (Physics.Raycast(SurfaceRayOrigin, -moveDir, out RaycastHit surfaceHit, 2f, obstacleLayerMask))
                 {
-                    return true;
+                    float height = transform.position.y - hit.point.y;
+                    if (height > minimumHeightForLedge)
+                    {
+                        ledgeData.angle = Vector3.Angle(transform.forward, surfaceHit.normal);
+                        ledgeData.height = height;
+                        ledgeData.surfaceHitInfo = surfaceHit;
+                        return true;
+                    }
                 }
             }
             return false;
