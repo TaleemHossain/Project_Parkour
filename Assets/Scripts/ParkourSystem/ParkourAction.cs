@@ -7,11 +7,13 @@ public class ParkourAction : ScriptableObject
     [SerializeField] bool rotateToObstacle;
     [SerializeField] float minHeight;
     [SerializeField] float maxHeight;
+    [SerializeField] float postActionDelay = 0f;
     [Header("Target Matching")]
     [SerializeField] bool enableTargetMatching = true;
     [SerializeField] AvatarTarget matchBodyPart;
     [SerializeField] float matchStartTime;
     [SerializeField] float matchTargetTime;
+    [SerializeField] Vector3 matchPosWeight = new Vector3(0, 1, 0);
     public Quaternion TargetRotation { get; set; }
     public Vector3 MatchPosition { get; set; }
     public bool CheckIfPossible(EnvironmentScanner.ObstackleHitData hitDataInfo, Transform player)
@@ -55,4 +57,6 @@ public class ParkourAction : ScriptableObject
     public AvatarTarget MatchBodyPart => matchBodyPart;
     public float MatchStartTime => matchStartTime;
     public float MatchTargetTime => matchTargetTime;
+    public Vector3 MatchPosWeight => matchPosWeight;
+    public float PostActionDelay => postActionDelay;
 }

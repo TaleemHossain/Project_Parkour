@@ -10,15 +10,16 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9f0570c769a252e43ad82f93acb4a65d, type: 3}
-  m_Name: Jump
+  m_Name: WallRun
   m_EditorClassIdentifier: 
-  animName: Jump
-  ObstacleRequired: 0
-  rotateToObstacle: 0
-  minHeight: 0
-  maxHeight: 0
-  enableTargetMatching: 0
-  matchBodyPart: 0
-  matchStartTime: 0
-  matchTargetTime: 0
-  matchPosWeight: {x: 0, y: 0, z: 0}
+  animName: WallRun
+  ObstacleRequired: 1
+  rotateToObstacle: 1
+  minHeight: 1.5
+  maxHeight: 2.5
+  postActionDelay: 0.5
+  enableTargetMatching: 1
+  matchBodyPart: 5
+  matchStartTime: 0.075
+  matchTargetTime: 0.28
+  matchPosWeight: {x: 0, y: 1, z: 1}
