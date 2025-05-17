@@ -3,24 +3,26 @@ using UnityEngine;
 public class ParkourAction : ScriptableObject
 {
     [SerializeField] string animName;
-    [SerializeField] bool ObstacleRequired;
+    [SerializeField] string obstacleTag;
+    [SerializeField] bool obstacleRequired;
     [SerializeField] bool rotateToObstacle;
     [SerializeField] float minHeight;
     [SerializeField] float maxHeight;
     [SerializeField] float postActionDelay = 0f;
     [Header("Target Matching")]
     [SerializeField] bool enableTargetMatching = true;
-    [SerializeField] AvatarTarget matchBodyPart;
+    [SerializeField] protected AvatarTarget matchBodyPart;
     [SerializeField] float matchStartTime;
     [SerializeField] float matchTargetTime;
     [SerializeField] Vector3 matchPosWeight = new Vector3(0, 1, 0);
     public Quaternion TargetRotation { get; set; }
     public Vector3 MatchPosition { get; set; }
-    public bool CheckIfPossible(EnvironmentScanner.ObstackleHitData hitDataInfo, Transform player)
+    public bool Mirror { get; set; }
+    public virtual bool CheckIfPossible(EnvironmentScanner.ObstackleHitData hitDataInfo, Transform player)
     {
         if (!hitDataInfo.forwardHitFound)
         {
-            if (!ObstacleRequired)
+            if (!obstacleRequired)
             {
                 return true;
             }
@@ -31,8 +33,18 @@ public class ParkourAction : ScriptableObject
         }
         else
         {
-            if (!ObstacleRequired)
+            if (!obstacleRequired)
             {
+                return false;
+            }
+            if (string.IsNullOrEmpty(obstacleTag))
+            {
+                Debug.Log("False1");
+                return false;
+            }
+            if (hitDataInfo.forwardHitInfo.transform.tag != obstacleTag)
+            {
+                Debug.Log("The obstacle tag is " + hitDataInfo.forwardHitInfo.transform.tag + " The required tag is " + obstacleTag + " for action " + animName);
                 return false;
             }
             float height = hitDataInfo.heightHitInfo.point.y - player.position.y;

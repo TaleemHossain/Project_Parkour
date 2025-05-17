@@ -36,7 +36,7 @@ public class ParkourController : MonoBehaviour
                 }
                 else
                 {
-                    // Debug.Log("Parkour action not possible");
+                    Debug.Log(action.AnimName + "Parkour action not possible");
                 }
             }
         }
@@ -45,6 +45,7 @@ public class ParkourController : MonoBehaviour
     {
         isAction = true;
         playerController.SetControl(false);
+        animator.SetBool("mirrorAction", action.Mirror);
         animator.CrossFade(action.AnimName, 0.2f);
         yield return null;
         var animState = animator.GetNextAnimatorStateInfo(0);
@@ -70,6 +71,10 @@ public class ParkourController : MonoBehaviour
                 {
                     animator.MatchTarget(action.MatchPosition, transform.rotation, action.MatchBodyPart, new MatchTargetWeightMask(action.MatchPosWeight, 0), action.MatchStartTime, action.MatchTargetTime);
                 }
+            }
+            if (animator.IsInTransition(0) && timer > 0.5f)
+            {
+                break;
             }
             yield return null;
         }

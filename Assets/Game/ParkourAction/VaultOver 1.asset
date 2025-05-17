@@ -9,18 +9,18 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9f0570c769a252e43ad82f93acb4a65d, type: 3}
-  m_Name: SteppingUp
+  m_Script: {fileID: 11500000, guid: a1b37a5fc259def4ba4847a73124a72c, type: 3}
+  m_Name: VaultOver 1
   m_EditorClassIdentifier: 
-  animName: SteppingUp
-  obstacleTag: Climbable
+  animName: VaultOver
+  obstacleTag: Vaultable
   obstacleRequired: 1
   rotateToObstacle: 1
-  minHeight: 0.3
-  maxHeight: 0.7
+  minHeight: 0.75
+  maxHeight: 1.2
   postActionDelay: 0
   enableTargetMatching: 1
-  matchBodyPart: 3
-  matchStartTime: 0.3
-  matchTargetTime: 0.51
-  matchPosWeight: {x: 0, y: 1, z: 0}
+  matchBodyPart: 5
+  matchStartTime: 0.12
+  matchTargetTime: 0.32
+  matchPosWeight: {x: 0, y: 1, z: 1}

@@ -13,11 +13,14 @@ MonoBehaviour:
   m_Name: JumpingOn
   m_EditorClassIdentifier: 
   animName: JumpingOn
-  ObstacleRequired: 1
+  obstacleTag: Climbable
+  obstacleRequired: 1
   rotateToObstacle: 1
   minHeight: 0.7
   maxHeight: 1.5
+  postActionDelay: 0
   enableTargetMatching: 1
   matchBodyPart: 3
   matchStartTime: 0.1
   matchTargetTime: 0.4
+  matchPosWeight: {x: 0, y: 1, z: 0.5}

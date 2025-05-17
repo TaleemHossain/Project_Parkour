@@ -13,11 +13,12 @@ MonoBehaviour:
   m_Name: WallRun
   m_EditorClassIdentifier: 
   animName: WallRun
-  ObstacleRequired: 1
+  obstacleTag: Climbable
+  obstacleRequired: 1
   rotateToObstacle: 1
   minHeight: 1.5
   maxHeight: 2.5
-  postActionDelay: 0.5
+  postActionDelay: 0.7
   enableTargetMatching: 1
   matchBodyPart: 5
   matchStartTime: 0.075
