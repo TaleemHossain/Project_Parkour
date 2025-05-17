@@ -30,13 +30,8 @@ public class ParkourController : MonoBehaviour
             {
                 if (action.CheckIfPossible(hitData, transform))
                 {
-                    // Debug.Log("Parkour action possible");
                     StartCoroutine(DoParkourAction(action));
                     break;
-                }
-                else
-                {
-                    Debug.Log(action.AnimName + "Parkour action not possible");
                 }
             }
         }
@@ -51,7 +46,6 @@ public class ParkourController : MonoBehaviour
         var animState = animator.GetNextAnimatorStateInfo(0);
         if (animState.IsName(action.AnimName))
         {
-            // Debug.Log("Parkour action in progress");
         }
         else
         {

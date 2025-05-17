@@ -39,12 +39,10 @@ public class ParkourAction : ScriptableObject
             }
             if (string.IsNullOrEmpty(obstacleTag))
             {
-                Debug.Log("False1");
                 return false;
             }
             if (hitDataInfo.forwardHitInfo.transform.tag != obstacleTag)
             {
-                Debug.Log("The obstacle tag is " + hitDataInfo.forwardHitInfo.transform.tag + " The required tag is " + obstacleTag + " for action " + animName);
                 return false;
             }
             float height = hitDataInfo.heightHitInfo.point.y - player.position.y;

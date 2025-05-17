@@ -14,10 +14,12 @@ public class PlayerController : MonoBehaviour
     [SerializeField] LayerMask groundLayer;
     public bool isGrounded;
     bool hasControl = true;
+    public bool isOnLedge { get; set; }
     float ySpeed = 0f;
     Camera_Controller cameraController;
     Animator animator;
     CharacterController characterController;
+    EnvironmentScanner environmentScanner;
     Quaternion targetRotation;
     private void Awake()
     {
@@ -27,6 +29,7 @@ public class PlayerController : MonoBehaviour
         if (cameraController == null) Debug.LogError("Camera_Controller component is missing on Main Camera");
         characterController = GetComponent<CharacterController>();
         if (characterController == null) Debug.LogError("CharacterController component is missing on " + gameObject.name);
+        environmentScanner = GetComponent<EnvironmentScanner>();
     }
     private void Update()
     {
@@ -45,6 +48,15 @@ public class PlayerController : MonoBehaviour
         else
         {
             ySpeed = -0.1f;
+            isOnLedge = environmentScanner.LedgeCheck(moveDir);
+            if (isOnLedge)
+            {
+                Debug.Log("On Ledge");
+            }
+            else
+            {
+                Debug.Log("Not on Ledge");
+            }
         }
         var velocity = moveDir * moveSpeed;
         velocity.y = ySpeed;
@@ -72,9 +84,4 @@ public class PlayerController : MonoBehaviour
             targetRotation = transform.rotation;
         }
     }
-    // private void OnDrawGizmosSelected()
-    // {
-    //     Gizmos.color = new Color(0, 1, 0, 0.5f);
-    //     Gizmos.DrawSphere(transform.TransformPoint(groundCheckOffset), groundCheckRadius);
-    // }
 }
