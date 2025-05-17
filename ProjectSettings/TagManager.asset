@@ -4,8 +4,10 @@
 TagManager:
   serializedVersion: 3
   tags:
-  - Vaultable
-  - Climbable
+  - Blockade
+  - Vault
+  - Long Jump
+  - Platform
   layers:
   - Default
   - TransparentFX

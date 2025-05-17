@@ -10,7 +10,7 @@ public class VaultOver : ParkourAction
             return false;
         }
         var hitPoint = hitDataInfo.forwardHitInfo.transform.InverseTransformPoint(hitDataInfo.forwardHitInfo.point);
-        if (hitPoint.z < 0 && hitPoint.x < 0 || hitPoint.z > 0 && hitPoint.x > 0) // 
+        if (hitPoint.z < 0 && hitPoint.x < 0 || hitPoint.z > 0 && hitPoint.x > 0)
         {
             Mirror = true;
             matchBodyPart = AvatarTarget.RightHand;

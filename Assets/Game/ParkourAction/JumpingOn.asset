@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: JumpingOn
   m_EditorClassIdentifier: 
   animName: JumpingOn
-  obstacleTag: Climbable
+  obstacleTag: Platform
   obstacleRequired: 1
   rotateToObstacle: 1
   minHeight: 0.7

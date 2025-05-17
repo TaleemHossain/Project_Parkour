@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: SteppingUp
   m_EditorClassIdentifier: 
   animName: SteppingUp
-  obstacleTag: Climbable
+  obstacleTag: Platform
   obstacleRequired: 1
   rotateToObstacle: 1
   minHeight: 0.3

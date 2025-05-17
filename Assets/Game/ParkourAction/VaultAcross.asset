@@ -10,17 +10,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9f0570c769a252e43ad82f93acb4a65d, type: 3}
-  m_Name: WallRun
+  m_Name: VaultAcross
   m_EditorClassIdentifier: 
-  animName: WallRun
-  obstacleTag: Platform
+  animName: VaultAcross
+  obstacleTag: Vault
   obstacleRequired: 1
   rotateToObstacle: 1
-  minHeight: 1.5
-  maxHeight: 2.5
-  postActionDelay: 0.7
+  minHeight: 0.5
+  maxHeight: 1
+  postActionDelay: 0
   enableTargetMatching: 1
-  matchBodyPart: 5
-  matchStartTime: 0.075
-  matchTargetTime: 0.28
+  matchBodyPart: 4
+  matchStartTime: 0.06
+  matchTargetTime: 0.16
   matchPosWeight: {x: 0, y: 1, z: 1}
