@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -81,12 +82,15 @@ public class PlayerController : MonoBehaviour
     }
     void LedgeMovement()
     {
-        float angle = Vector3.Angle(LedgeData.surfaceHitInfo.normal, desiredMoveDir);
-        if (angle < 90f)
+        if (LedgeData.isCorner)
         {
             velocity = Vector3.zero;
             moveDir = Vector3.zero;
+            return;
         }
+        Vector3 ledgeNormal = LedgeData.surfaceHitInfo.normal;
+        Vector3 moveDirProjected = Vector3.ProjectOnPlane(desiredMoveDir, ledgeNormal);
+        velocity = moveDirProjected * moveSpeed;
     }
     public void SetControl(bool hasControl)
     {

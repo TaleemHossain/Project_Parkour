@@ -26,6 +26,7 @@ public class EnvironmentScanner : MonoBehaviour
         public float angle;
         public RaycastHit ledgeHitInfo;
         public RaycastHit surfaceHitInfo;
+        public bool isCorner;
     }
     public ObstackleHitData ObstackleCheck()
     {
@@ -49,23 +50,33 @@ public class EnvironmentScanner : MonoBehaviour
         else
         {
             var origin = transform.position + moveDir * ledgeCheckRayOffset + Vector3.up;
-            if (Physics.Raycast(origin, Vector3.down, out RaycastHit hit, ledgeCheckRayLength, obstacleLayerMask))
+            bool LedgeCheck = Physics.Raycast(origin, Vector3.down, out RaycastHit ledgehit, ledgeCheckRayLength, obstacleLayerMask);
+            if (LedgeCheck)
             {
-                ledgeData.ledgeHitInfo = hit;
+                ledgeData.ledgeHitInfo = ledgehit;
                 var SurfaceRayOrigin = transform.position + moveDir - new Vector3(0, 0.1f, 0);
                 if (Physics.Raycast(SurfaceRayOrigin, -moveDir, out RaycastHit surfaceHit, 2f, obstacleLayerMask))
                 {
-                    float height = transform.position.y - hit.point.y;
+                    float height = transform.position.y - ledgehit.point.y;
                     if (height > minimumHeightForLedge)
                     {
                         ledgeData.angle = Vector3.Angle(transform.forward, surfaceHit.normal);
                         ledgeData.height = height;
                         ledgeData.surfaceHitInfo = surfaceHit;
+                        float sideRayDistance = ledgeCheckRayOffset;
+                        Vector3 perpendicularDir = new Vector3(-moveDir.z, 0, moveDir.x).normalized;
+                        Vector3 leftOrigin = transform.position - perpendicularDir * sideRayDistance + Vector3.up;
+                        Vector3 rightOrigin = transform.position + perpendicularDir * sideRayDistance + Vector3.up;
+                        bool leftHit = Physics.Raycast(leftOrigin, Vector3.down, out RaycastHit leftHitInfo, ledgeCheckRayLength, obstacleLayerMask);
+                        bool rightHit = Physics.Raycast(rightOrigin, Vector3.down, out RaycastHit rightHitInfo, ledgeCheckRayLength, obstacleLayerMask);
+                        ledgeData.isCorner = ((leftHit && transform.position.y - leftHitInfo.point.y > minimumHeightForLedge) ||
+                                             (rightHit && transform.position.y - rightHitInfo.point.y > minimumHeightForLedge)) &&
+                                             (LedgeCheck && transform.position.y - ledgehit.point.y > minimumHeightForLedge);
                         return true;
                     }
                 }
             }
             return false;
         }
-    } 
+    }
 }
