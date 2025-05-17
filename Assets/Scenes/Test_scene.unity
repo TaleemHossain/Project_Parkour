@@ -2471,7 +2471,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 64
   heightRayLength: 4
-  ledgeCheckRayOffset: 0.5
+  ledgeCheckRayOffset: 0.75
   ledgeCheckRayLength: 10
   minimumHeightForLedge: 0.75
 --- !u!114 &1800636952
