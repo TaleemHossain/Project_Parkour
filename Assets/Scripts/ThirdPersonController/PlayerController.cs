@@ -5,14 +5,23 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
+    [Header("Speed Settings")]
     [SerializeField] float moveSpeed = 5f;
     [SerializeField] public float rotationSpeed = 720f;
+    [SerializeField] float SprintSpeed = 1.5f;
 
     [Header("Ground Check settings")]
     [SerializeField] float groundCheckRadius = 0.1f;
     [SerializeField] Vector3 groundCheckOffset;
     [SerializeField] LayerMask groundLayer;
+    [Header("Stamina settings")]
+    [SerializeField] float maxStamina = 15f;
+    private float currentStamina;
+    private bool isResting = false;
     public bool isGrounded;
+    public bool wasFalling = false;
+    public bool freeRun = false;
+    public bool shift;
     bool hasControl = true;
     public bool IsOnLedge { get; set; }
     public EnvironmentScanner.LedgeData LedgeData { get; set; }
@@ -27,6 +36,7 @@ public class PlayerController : MonoBehaviour
     Quaternion targetRotation;
     private void Awake()
     {
+        currentStamina = maxStamina;
         animator = GetComponent<Animator>();
         if (animator == null) Debug.LogError("Animator component is missing on " + gameObject.name);
         cameraController = Camera.main.GetComponent<Camera_Controller>();
@@ -46,12 +56,16 @@ public class PlayerController : MonoBehaviour
         desiredMoveDir = cameraController.PlanarRotation * direction;
         moveDir = desiredMoveDir;
 
+        shift = Input.GetKey(KeyCode.LeftShift);
+
         if (!hasControl) return;
 
         GroundCheck();
         animator.SetBool("isGrounded", isGrounded);
+
         if (!isGrounded)
         {
+            wasFalling = true;
             ySpeed += Physics.gravity.y * Time.deltaTime;
             velocity = transform.forward * moveSpeed / 2;
         }
@@ -67,8 +81,14 @@ public class PlayerController : MonoBehaviour
             }
             animator.SetFloat("moveAmount", velocity.magnitude / moveSpeed, 0.1f, Time.deltaTime);
         }
+
+        UpdateStamina();
+        Debug.Log("Current Stamina = " + currentStamina);
+        Debug.Log("Free Run = " + freeRun);
         velocity.y = ySpeed;
-        characterController.Move(velocity * Time.deltaTime);
+        float speedMultiplier = freeRun ? SprintSpeed : 1f;
+        Debug.Log("Velocity = " + speedMultiplier * velocity.magnitude);
+        characterController.Move(speedMultiplier * velocity * Time.deltaTime);
 
         if (moveAmount > 0 && moveDir.magnitude > 0.1f)
         {
@@ -100,6 +120,42 @@ public class PlayerController : MonoBehaviour
         {
             animator.SetFloat("moveAmount", 0f);
             targetRotation = transform.rotation;
+        }
+    }
+    public bool HasControl
+    {
+        get => hasControl;
+        set => hasControl = value;
+    }
+    private void UpdateStamina()
+    {
+        if (shift)
+        {
+            if (currentStamina >= 0f && !isResting)
+            {
+                freeRun = true;
+            }
+            if (freeRun)
+            {
+                currentStamina -= Time.deltaTime;
+                currentStamina = Mathf.Clamp(currentStamina, 0f, maxStamina);
+            }
+            if (currentStamina <= 0f)
+            {
+                freeRun = false;
+                isResting = true;
+            }
+        }
+        else
+        {
+            freeRun = false;
+            currentStamina += Time.deltaTime;
+            currentStamina = Mathf.Clamp(currentStamina, 0f, maxStamina);
+
+            if (currentStamina >= 5f)
+            {
+                isResting = false;
+            }
         }
     }
 }

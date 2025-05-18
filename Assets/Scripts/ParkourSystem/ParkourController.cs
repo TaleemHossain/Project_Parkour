@@ -13,6 +13,7 @@ public class ParkourController : MonoBehaviour
     EnvironmentScanner environmentScanner;
     Animator animator;
     bool isAction = false;
+    bool freeRun;
     private void Awake()
     {
         playerController = GetComponent<PlayerController>();
@@ -21,8 +22,17 @@ public class ParkourController : MonoBehaviour
     }
     private void Update()
     {
+        freeRun = Input.GetKey(KeyCode.LeftShift);
         var hitData = environmentScanner.ObstackleCheck();
-        if (Input.GetKeyDown(KeyCode.Space) && !isAction)
+        if (Input.GetKeyDown(KeyCode.Space) && freeRun && !isAction)
+        {
+            if (!playerController.isGrounded)
+            {
+                return;
+            }
+            StartCoroutine(RunningJump(parkourActions[0]));
+        }
+        if ((Input.GetKeyDown(KeyCode.Space) || freeRun) && !isAction)
         {
             if (!playerController.isGrounded)
             {
@@ -30,6 +40,10 @@ public class ParkourController : MonoBehaviour
             }
             foreach (var action in parkourActions)
             {
+                if (action == parkourActions[0])
+                {
+                    continue;
+                }
                 if (action.CheckIfPossible(hitData, transform))
                 {
                     StartCoroutine(DoParkourAction(action));
@@ -37,7 +51,7 @@ public class ParkourController : MonoBehaviour
                 }
             }
         }
-        if (playerController.IsOnLedge && !isAction && !hitData.forwardHitFound && Input.GetKeyDown(KeyCode.Space))
+        if (playerController.IsOnLedge && !isAction && !hitData.forwardHitFound && (Input.GetKeyDown(KeyCode.Space) || freeRun))
         {
             if (playerController.LedgeData.angle <= 50f)
             {
@@ -54,10 +68,7 @@ public class ParkourController : MonoBehaviour
         animator.CrossFade(action.AnimName, 0.2f);
         yield return null;
         var animState = animator.GetNextAnimatorStateInfo(0);
-        if (animState.IsName(action.AnimName))
-        {
-        }
-        else
+        if (!animState.IsName(action.AnimName))
         {
             Debug.LogError("Wrong Animation name");
         }
@@ -84,6 +95,15 @@ public class ParkourController : MonoBehaviour
         }
         yield return new WaitForSeconds(action.PostActionDelay);
         playerController.SetControl(true);
+        isAction = false;
+    }
+    IEnumerator RunningJump(ParkourAction RunningJump)
+    {
+        isAction = true;
+        animator.CrossFade(RunningJump.AnimName, 0.2f);
+        yield return null;
+        var animState = animator.GetNextAnimatorStateInfo(0);
+        yield return new WaitForSeconds(animState.length);
         isAction = false;
     }
 }

@@ -2390,6 +2390,8 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 64
   isGrounded: 0
+  wasFalling: 0
+  freeRun: 0
 --- !u!4 &1800636948
 Transform:
   m_ObjectHideFlags: 0
@@ -2466,12 +2468,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   forwardRayOffset: {x: 0, y: 0.2, z: 0}
-  forwardRayLength: 1
+  forwardRayLength: 0.5
   obstacleLayerMask:
     serializedVersion: 2
     m_Bits: 64
-  heightRayLength: 4
-  ledgeCheckRayOffset: 0.75
+  heightRayLength: 10
+  ledgeCheckRayOffset: 0.5
   ledgeCheckRayLength: 10
   minimumHeightForLedge: 0.75
 --- !u!114 &1800636952
@@ -2487,6 +2489,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   parkourActions:
+  - {fileID: 11400000, guid: f68099e4eb33ec74599263d50d4ede8d, type: 2}
   - {fileID: 11400000, guid: c038304a22ec2a04bb5fa9648eac06a7, type: 2}
   - {fileID: 11400000, guid: 5709e65651074504c921fe06f12f5885, type: 2}
   - {fileID: 11400000, guid: 85f4cd121ec22284e985b21bf10a80b9, type: 2}

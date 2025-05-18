@@ -12,11 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9f0570c769a252e43ad82f93acb4a65d, type: 3}
   m_Name: Jump
   m_EditorClassIdentifier: 
-  animName: Jump
-  ObstacleRequired: 0
+  animName: RunningJump
+  obstacleTag: 
+  obstacleRequired: 0
   rotateToObstacle: 0
   minHeight: 0
   maxHeight: 0
+  postActionDelay: 0
   enableTargetMatching: 0
   matchBodyPart: 0
   matchStartTime: 0

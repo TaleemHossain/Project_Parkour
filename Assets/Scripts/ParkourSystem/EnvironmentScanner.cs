@@ -51,7 +51,7 @@ public class EnvironmentScanner : MonoBehaviour
         {
             var origin = transform.position + moveDir * ledgeCheckRayOffset + Vector3.up;
             bool LedgeCheck = Physics.Raycast(origin, Vector3.down, out RaycastHit ledgehit, ledgeCheckRayLength, obstacleLayerMask);
-            if (LedgeCheck)
+            if (PhysicsUtil.ThreeRayCasts(origin, Vector3.down, ledgeCheckRayOffset, transform, out List<RaycastHit> hits, ledgeCheckRayLength, obstacleLayerMask))
             {
                 ledgeData.ledgeHitInfo = ledgehit;
                 var SurfaceRayOrigin = transform.position + moveDir - new Vector3(0, 0.1f, 0);
