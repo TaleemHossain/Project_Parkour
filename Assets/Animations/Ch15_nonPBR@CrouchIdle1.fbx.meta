@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: be8723229c2345040974ff5f4a4e076d
+guid: 761f4aad35f821849991a71e086318f1
 ModelImporter:
   serializedVersion: 22200
   internalIDToNameTable: []
@@ -31,11 +31,11 @@ ModelImporter:
     extraUserProperties: []
     clipAnimations:
     - serializedVersion: 16
-      name: CrouchIdle
+      name: CrouchIdle1
       takeName: mixamo.com
       internalID: -203655887218126122
       firstFrame: 0
-      lastFrame: 30
+      lastFrame: 50
       wrapMode: 0
       orientationOffsetY: 0
       level: 0

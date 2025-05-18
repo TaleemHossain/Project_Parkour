@@ -7,7 +7,7 @@ public class Camera_Controller : MonoBehaviour
     [SerializeField] Transform followTarget;
     [SerializeField] float mouseSensitivityX = 5f;
     [SerializeField] float mouseSensitivityY = 5f;
-    [SerializeField] float distance = 5f;
+    [SerializeField] public float distance = 5f;
     [SerializeField] float minVerticalAngle = -20f;
     [SerializeField] float maxVerticalAngle = 45f;
     [SerializeField] Vector2 framingOffset;

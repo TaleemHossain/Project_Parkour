@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour
@@ -59,20 +60,6 @@ public class PlayerController : MonoBehaviour
 
         if (!hasControl) return;
 
-        if (Input.GetKeyDown(KeyCode.C))
-        {
-            isCrouched = !isCrouched;
-            if (isCrouched == true)
-            {
-                freeRun = false;
-            }
-            animator.SetBool("isCrouched", isCrouched);
-            characterController.height = isCrouched ? 1.25f : 1.7f;
-            characterController.center = isCrouched ? new Vector3(0.1f, 0.67f, 0.15f) : new Vector3(0f, 0.88f, 0.15f);
-        }
-
-        shift = Input.GetKey(KeyCode.LeftShift);
-
         GroundCheck();
         animator.SetBool("isGrounded", isGrounded);
 
@@ -85,19 +72,51 @@ public class PlayerController : MonoBehaviour
         {
             velocity = desiredMoveDir * moveSpeed;
             ySpeed = -0.1f;
+
+            if (Input.GetKeyDown(KeyCode.C))
+            {
+                UpdateCrouchMode(!isCrouched);
+            }
+
+            shift = Input.GetKey(KeyCode.LeftShift);
+            UpdateFreeRun();
+
             IsOnLedge = environmentScanner.LedgeCheck(desiredMoveDir, out EnvironmentScanner.LedgeData ledgeData);
             if (IsOnLedge)
             {
                 LedgeData = ledgeData;
                 LedgeMovement();
             }
-            animator.SetFloat("moveAmount", velocity.magnitude / moveSpeed, 0.1f, Time.deltaTime);
+            if (!isCrouched)
+            {
+                animator.SetFloat("moveAmount", velocity.magnitude * (freeRun ? SprintMult : 1f) / (moveSpeed * SprintMult), 0.1f, Time.deltaTime);
+                animator.SetFloat("crouchMoveAmount", 0f);
+            }
+            else
+            {
+                animator.SetFloat("crouchMoveAmount", velocity.magnitude / moveSpeed, 0.1f, Time.deltaTime);
+                animator.SetFloat("moveAmount", 0f);
+            }
+        }
+        velocity.y = ySpeed;
+
+        float speedMultiplier;
+        if (freeRun)
+        {
+            cameraController.distance = 5f;
+            speedMultiplier = SprintMult;
+        }
+        else if (isCrouched)
+        {
+            cameraController.distance = 3f;
+            speedMultiplier = CrouchMult;
+        }
+        else
+        {
+            cameraController.distance = 4f;
+            speedMultiplier = 1f;
         }
 
-        UpdateFreeRun();
-        velocity.y = ySpeed;
-        float speedMultiplier = freeRun ? SprintMult : 1f;
-        speedMultiplier *= isCrouched ? CrouchMult : 1f;
         characterController.Move(speedMultiplier * velocity * Time.deltaTime);
 
         if (moveAmount > 0 && moveDir.magnitude > 0.1f)
@@ -129,6 +148,7 @@ public class PlayerController : MonoBehaviour
         if (!hasControl)
         {
             animator.SetFloat("moveAmount", 0f);
+            animator.SetFloat("crouchMoveAmount", 0f);
             targetRotation = transform.rotation;
         }
     }
@@ -144,8 +164,7 @@ public class PlayerController : MonoBehaviour
             if (currentStamina >= 0f && !isResting)
             {
                 freeRun = true;
-                isCrouched = false;
-                animator.SetBool("isCrouched", isCrouched);
+                UpdateCrouchMode(false);
             }
             if (freeRun)
             {
@@ -169,5 +188,17 @@ public class PlayerController : MonoBehaviour
                 isResting = false;
             }
         }
+    }
+    void UpdateCrouchMode(bool state)
+    {
+        isCrouched = state;
+        if (isCrouched == true)
+        {
+            animator.CrossFade("CrouchLocomotion", 0.2f);
+            freeRun = false;
+        }
+        animator.SetBool("isCrouched", isCrouched);
+        characterController.height = isCrouched ? 1.3f : 1.7f;
+        characterController.center = isCrouched ? new Vector3(0.12f, 0.68f, 0.2f) : new Vector3(0f, 0.88f, 0.15f);
     }
 }
