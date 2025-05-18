@@ -8,7 +8,8 @@ public class PlayerController : MonoBehaviour
     [Header("Speed Settings")]
     [SerializeField] float moveSpeed = 5f;
     [SerializeField] public float rotationSpeed = 720f;
-    [SerializeField] float SprintSpeed = 1.5f;
+    [SerializeField] float SprintMult = 1.5f;
+    [SerializeField] float CrouchMult = 0.75f;
 
     [Header("Ground Check settings")]
     [SerializeField] float groundCheckRadius = 0.1f;
@@ -19,7 +20,8 @@ public class PlayerController : MonoBehaviour
     private float currentStamina;
     bool isResting = false;
     public bool isGrounded;
-    bool freeRun = false;
+    public bool isCrouched = false;
+    public bool freeRun = false;
     bool shift;
     bool hasControl = true;
     public bool IsOnLedge { get; set; }
@@ -55,9 +57,21 @@ public class PlayerController : MonoBehaviour
         desiredMoveDir = cameraController.PlanarRotation * direction;
         moveDir = desiredMoveDir;
 
-        shift = Input.GetKey(KeyCode.LeftShift);
-
         if (!hasControl) return;
+
+        if (Input.GetKeyDown(KeyCode.C))
+        {
+            isCrouched = !isCrouched;
+            if (isCrouched == true)
+            {
+                freeRun = false;
+            }
+            animator.SetBool("isCrouched", isCrouched);
+            characterController.height = isCrouched ? 1.25f : 1.7f;
+            characterController.center = isCrouched ? new Vector3(0.1f, 0.67f, 0.15f) : new Vector3(0f, 0.88f, 0.15f);
+        }
+
+        shift = Input.GetKey(KeyCode.LeftShift);
 
         GroundCheck();
         animator.SetBool("isGrounded", isGrounded);
@@ -80,9 +94,10 @@ public class PlayerController : MonoBehaviour
             animator.SetFloat("moveAmount", velocity.magnitude / moveSpeed, 0.1f, Time.deltaTime);
         }
 
-        UpdateStamina();
+        UpdateFreeRun();
         velocity.y = ySpeed;
-        float speedMultiplier = freeRun ? SprintSpeed : 1f;
+        float speedMultiplier = freeRun ? SprintMult : 1f;
+        speedMultiplier *= isCrouched ? CrouchMult : 1f;
         characterController.Move(speedMultiplier * velocity * Time.deltaTime);
 
         if (moveAmount > 0 && moveDir.magnitude > 0.1f)
@@ -122,13 +137,15 @@ public class PlayerController : MonoBehaviour
         get => hasControl;
         set => hasControl = value;
     }
-    private void UpdateStamina()
+    private void UpdateFreeRun()
     {
         if (shift)
         {
             if (currentStamina >= 0f && !isResting)
             {
                 freeRun = true;
+                isCrouched = false;
+                animator.SetBool("isCrouched", isCrouched);
             }
             if (freeRun)
             {

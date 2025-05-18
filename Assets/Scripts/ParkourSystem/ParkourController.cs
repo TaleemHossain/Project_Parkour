@@ -1,8 +1,5 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Text.RegularExpressions;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class ParkourController : MonoBehaviour
@@ -15,7 +12,6 @@ public class ParkourController : MonoBehaviour
     EnvironmentScanner environmentScanner;
     Animator animator;
     bool isAction = false;
-    bool freeRun;
     private void Awake()
     {
         playerController = GetComponent<PlayerController>();
@@ -24,20 +20,27 @@ public class ParkourController : MonoBehaviour
     }
     private void Update()
     {
-        freeRun = Input.GetKey(KeyCode.LeftShift);
         var hitData1 = environmentScanner.ObstackleCheck();
         var hitData2 = environmentScanner.BarrierCheck();
-        if (Input.GetKeyDown(KeyCode.Space) && freeRun && !isAction)
+        if (Input.GetKeyDown(KeyCode.Space) && playerController.freeRun && !isAction)
         {
             if (!playerController.isGrounded)
             {
                 return;
             }
+            if (playerController.isCrouched)
+            {
+                return;
+            }
             StartCoroutine(DoParkourAction2(RunningJumpAction));
         }
-        if ((Input.GetKeyDown(KeyCode.Space) || freeRun) && !isAction)
+        if ((Input.GetKeyDown(KeyCode.Space) || playerController.freeRun) && !isAction)
         {
             if (!playerController.isGrounded)
+            {
+                return;
+            }
+            if (playerController.isCrouched)
             {
                 return;
             }
@@ -50,9 +53,13 @@ public class ParkourController : MonoBehaviour
                 }
             }
         }
-        if ((Input.GetKeyDown(KeyCode.LeftAlt) || freeRun) && !isAction)
+        if ((Input.GetKeyDown(KeyCode.LeftAlt) || playerController.freeRun) && !isAction)
         {
             if (!playerController.isGrounded)
+            {
+                return;
+            }
+            if (playerController.isCrouched)
             {
                 return;
             }
@@ -65,8 +72,16 @@ public class ParkourController : MonoBehaviour
                 }
             }
         }
-        if (playerController.IsOnLedge && !isAction && !hitData1.forwardHitFound && (Input.GetKeyDown(KeyCode.Space) || freeRun))
+        if (playerController.IsOnLedge && !isAction && !hitData1.forwardHitFound && (Input.GetKeyDown(KeyCode.Space) || playerController.freeRun))
         {
+            if (!playerController.isGrounded)
+            {
+                return;
+            }   
+            if (playerController.isCrouched)
+            {
+                return;
+            }
             if (playerController.LedgeData.angle <= 50f)
             {
                 playerController.IsOnLedge = false;
