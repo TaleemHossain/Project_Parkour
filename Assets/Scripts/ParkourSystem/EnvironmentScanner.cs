@@ -6,14 +6,25 @@ public class EnvironmentScanner : MonoBehaviour
 {
     [Header("Obstacle Scanning")]
     [SerializeField] Vector3 forwardRayOffset = new Vector3(0f, 0.25f, 0f);
-    [SerializeField] float forwardRayLength = 1f;
+    [SerializeField] float forwardRayLength = 0.5f;
     [SerializeField] LayerMask obstacleLayerMask;
-    [SerializeField] float heightRayLength = 4f;
+    [SerializeField] float heightRayLength = 5f;
+    [Header("Barrier Scanning")]
+    [SerializeField] Vector3 barrierRayOffset = new Vector3(0f, 1.25f, 0f);
+    [SerializeField] float barrierforwardRayLength = 1f;
+    [SerializeField] float barrierRayLength = 2f;
     [Header("Ledge Scanning")]
     [SerializeField] float ledgeCheckRayOffset = 1f;
     [SerializeField] float ledgeCheckRayLength = 10f;
     [SerializeField] float minimumHeightForLedge = 0.75f;
     public struct ObstackleHitData
+    {
+        public bool forwardHitFound;
+        public bool heightHitFound;
+        public RaycastHit forwardHitInfo;
+        public RaycastHit heightHitInfo;
+    }
+    public struct BarrierHitData
     {
         public bool forwardHitFound;
         public bool heightHitFound;
@@ -37,6 +48,18 @@ public class EnvironmentScanner : MonoBehaviour
         {
             var heightOrigin = hitData.forwardHitInfo.point + Vector3.up * heightRayLength;
             hitData.heightHitFound = Physics.Raycast(heightOrigin, Vector3.down, out hitData.heightHitInfo, heightRayLength, obstacleLayerMask);
+        }
+        return hitData;
+    }
+    public BarrierHitData BarrierCheck()
+    {
+        var hitData = new BarrierHitData();
+        var ForwardRayOrigin = transform.position + barrierRayOffset;
+        hitData.forwardHitFound = Physics.Raycast(ForwardRayOrigin, transform.forward, out hitData.forwardHitInfo, barrierforwardRayLength, obstacleLayerMask);
+        if (hitData.forwardHitFound)
+        {
+            var heightOrigin = hitData.forwardHitInfo.point - Vector3.up * barrierRayLength;
+            hitData.heightHitFound = Physics.Raycast(heightOrigin, Vector3.up, out hitData.heightHitInfo, heightRayLength, obstacleLayerMask);
         }
         return hitData;
     }

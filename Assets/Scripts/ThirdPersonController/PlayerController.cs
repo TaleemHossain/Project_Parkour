@@ -17,11 +17,10 @@ public class PlayerController : MonoBehaviour
     [Header("Stamina settings")]
     [SerializeField] float maxStamina = 15f;
     private float currentStamina;
-    private bool isResting = false;
+    bool isResting = false;
     public bool isGrounded;
-    public bool wasFalling = false;
-    public bool freeRun = false;
-    public bool shift;
+    bool freeRun = false;
+    bool shift;
     bool hasControl = true;
     public bool IsOnLedge { get; set; }
     public EnvironmentScanner.LedgeData LedgeData { get; set; }
@@ -65,7 +64,6 @@ public class PlayerController : MonoBehaviour
 
         if (!isGrounded)
         {
-            wasFalling = true;
             ySpeed += Physics.gravity.y * Time.deltaTime;
             velocity = transform.forward * moveSpeed / 2;
         }
@@ -83,11 +81,8 @@ public class PlayerController : MonoBehaviour
         }
 
         UpdateStamina();
-        Debug.Log("Current Stamina = " + currentStamina);
-        Debug.Log("Free Run = " + freeRun);
         velocity.y = ySpeed;
         float speedMultiplier = freeRun ? SprintSpeed : 1f;
-        Debug.Log("Velocity = " + speedMultiplier * velocity.magnitude);
         characterController.Move(speedMultiplier * velocity * Time.deltaTime);
 
         if (moveAmount > 0 && moveDir.magnitude > 0.1f)
