@@ -27,7 +27,7 @@ public class PlayerController : MonoBehaviour
     public bool IsOnLedge { get; set; }
     public EnvironmentScanner.LedgeData LedgeData { get; set; }
     float ySpeed = 0f;
-    Vector3 desiredMoveDir;
+    public Vector3 desiredMoveDir;
     Vector3 moveDir;
     Vector3 velocity = Vector3.zero;
     Camera_Controller cameraController;
@@ -88,7 +88,7 @@ public class PlayerController : MonoBehaviour
             shift = Input.GetKey(KeyCode.LeftShift);
             UpdateFreeRun();
 
-            IsOnLedge = environmentScanner.LedgeCheck(desiredMoveDir, out EnvironmentScanner.LedgeData ledgeData);
+            IsOnLedge = environmentScanner.PlatformLedgeCheck(desiredMoveDir, out EnvironmentScanner.LedgeData ledgeData);
             if (IsOnLedge)
             {
                 LedgeData = ledgeData;

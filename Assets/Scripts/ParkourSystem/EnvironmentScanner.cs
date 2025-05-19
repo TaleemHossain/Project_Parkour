@@ -13,10 +13,13 @@ public class EnvironmentScanner : MonoBehaviour
     [SerializeField] Vector3 barrierRayOffset = new Vector3(0f, 1.25f, 0f);
     [SerializeField] float barrierforwardRayLength = 1f;
     [SerializeField] float barrierRayLength = 2f;
-    [Header("Ledge Scanning")]
+    [Header("Platform Ledge Scanning")]
     [SerializeField] float ledgeCheckRayOffset = 1f;
     [SerializeField] float ledgeCheckRayLength = 10f;
     [SerializeField] float minimumHeightForLedge = 0.75f;
+    [Header("Climbing Ledge Scanning")]
+    [SerializeField] float climbLedgeRaylength = 1.5f;
+    [SerializeField] LayerMask climbLedgeLayer;
     public struct ObstackleHitData
     {
         public bool forwardHitFound;
@@ -77,7 +80,6 @@ public class EnvironmentScanner : MonoBehaviour
         if (hitData.HitFound)
         {
             float heightOfHit = hitData.HitInfo.point.y - transform.position.y;
-            Debug.Log("Height = " + heightOfHit);
             if (heightOfHit <= 1.75)
             {
                 hitData.IsThereShortRoof = true;
@@ -93,7 +95,7 @@ public class EnvironmentScanner : MonoBehaviour
         }
         return hitData;
     }
-    public bool LedgeCheck(Vector3 moveDir, out LedgeData ledgeData)
+    public bool PlatformLedgeCheck(Vector3 moveDir, out LedgeData ledgeData)
     {
         ledgeData = new LedgeData();
         if (moveDir == Vector3.zero)
@@ -131,5 +133,22 @@ public class EnvironmentScanner : MonoBehaviour
             }
             return false;
         }
+    }
+    public bool ClimbLedgeCheck(Vector3 dir, out RaycastHit ledgeHit)
+    {
+        ledgeHit = new RaycastHit();
+        if (dir == Vector3.zero)
+            return false;
+        var origin = transform.position + Vector3.up * 1.3f;
+        var offset = new Vector3(0f, 0.09f, 0f);
+        for (int i = 0; i < 10; i++)
+        {
+            if (Physics.Raycast(origin + offset * i, dir, out RaycastHit hit, climbLedgeRaylength, climbLedgeLayer))
+            {
+                ledgeHit = hit;
+                return true;
+            }
+        }
+        return false;
     }
 }
