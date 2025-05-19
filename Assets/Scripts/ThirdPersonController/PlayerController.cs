@@ -1,7 +1,5 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour
@@ -24,6 +22,7 @@ public class PlayerController : MonoBehaviour
     public bool isCrouched = false;
     public bool freeRun = false;
     bool shift;
+    public bool InAction { get; private set; } 
     bool hasControl = true;
     public bool IsOnLedge { get; set; }
     public EnvironmentScanner.LedgeData LedgeData { get; set; }
@@ -36,6 +35,14 @@ public class PlayerController : MonoBehaviour
     CharacterController characterController;
     EnvironmentScanner environmentScanner;
     Quaternion targetRotation;
+    public class MatchTargetParameters
+    {
+        public Vector3 pos;
+        public AvatarTarget bodyPart;
+        public Vector3 posWeight;
+        public float startTime;
+        public float targetTime;
+    }
     private void Awake()
     {
         currentStamina = maxStamina;
@@ -191,14 +198,55 @@ public class PlayerController : MonoBehaviour
     }
     void UpdateCrouchMode(bool state)
     {
+        if (isCrouched)
+        {
+            freeRun = false;
+        }
+        if (!state && environmentScanner.RoofCheck().IsThereShortRoof)
+            return;
         isCrouched = state;
-        if (isCrouched == true)
+        if (isCrouched)
         {
             animator.CrossFade("CrouchLocomotion", 0.2f);
             freeRun = false;
         }
         animator.SetBool("isCrouched", isCrouched);
-        characterController.height = isCrouched ? 1.3f : 1.7f;
-        characterController.center = isCrouched ? new Vector3(0.12f, 0.68f, 0.2f) : new Vector3(0f, 0.88f, 0.15f);
+        characterController.height = isCrouched ? 1.26f : 1.66f;
+        characterController.center = isCrouched ? new Vector3(0.12f, 0.66f, 0.2f) : new Vector3(0f, 0.86f, 0.1f);
+    }
+    public IEnumerator DoAction(string animName, Quaternion TargetRotation, MatchTargetParameters matchTarget, bool rotate = false, float postActionDelay = 0f, bool mirror = false)
+    {
+        InAction = true;
+        animator.SetBool("mirrorAction", mirror);
+        animator.CrossFade(animName, 0.2f);
+        yield return null;
+        var animState = animator.GetNextAnimatorStateInfo(0);
+        if (!animState.IsName(animName))
+        {
+            Debug.LogError("Wrong Animation name");
+        }
+        float timer = 0f;
+        while (timer <= animState.length)
+        {
+            timer += Time.deltaTime;
+            if (rotate)
+            {
+                transform.rotation = Quaternion.RotateTowards(transform.rotation, TargetRotation, rotationSpeed * Time.deltaTime);
+            }
+            if (matchTarget != null)
+            {
+                if (!animator.isMatchingTarget)
+                {
+                    animator.MatchTarget(matchTarget.pos, transform.rotation, matchTarget.bodyPart, new MatchTargetWeightMask(matchTarget.posWeight, 0), matchTarget.startTime, matchTarget.targetTime);
+                }
+            }
+            if (animator.IsInTransition(0) && timer > 0.5f)
+            {
+                break;
+            }
+            yield return null;
+        }
+        yield return new WaitForSeconds(postActionDelay);
+        InAction = false;
     }
 }

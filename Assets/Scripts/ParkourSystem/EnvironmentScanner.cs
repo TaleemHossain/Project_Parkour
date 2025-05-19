@@ -31,6 +31,12 @@ public class EnvironmentScanner : MonoBehaviour
         public RaycastHit forwardHitInfo;
         public RaycastHit heightHitInfo;
     }
+    public struct RoofHitData
+    {
+        public bool HitFound;
+        public RaycastHit HitInfo;
+        public bool IsThereShortRoof;
+    }
     public struct LedgeData
     {
         public float height;
@@ -60,6 +66,30 @@ public class EnvironmentScanner : MonoBehaviour
         {
             var heightOrigin = hitData.forwardHitInfo.point - Vector3.up * barrierRayLength;
             hitData.heightHitFound = Physics.Raycast(heightOrigin, Vector3.up, out hitData.heightHitInfo, heightRayLength, obstacleLayerMask);
+        }
+        return hitData;
+    }
+    public RoofHitData RoofCheck()
+    {
+        var hitData = new RoofHitData();
+        hitData.IsThereShortRoof = false;
+        hitData.HitFound = Physics.Raycast(transform.position, transform.up, out hitData.HitInfo, 2f, obstacleLayerMask);
+        if (hitData.HitFound)
+        {
+            float heightOfHit = hitData.HitInfo.point.y - transform.position.y;
+            Debug.Log("Height = " + heightOfHit);
+            if (heightOfHit <= 1.75)
+            {
+                hitData.IsThereShortRoof = true;
+            }
+            else
+            {
+                hitData.IsThereShortRoof = false;
+            }
+        }
+        else
+        {
+            hitData.IsThereShortRoof = false;
         }
         return hitData;
     }

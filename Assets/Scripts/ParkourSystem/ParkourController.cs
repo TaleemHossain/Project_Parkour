@@ -11,7 +11,7 @@ public class ParkourController : MonoBehaviour
     PlayerController playerController;
     EnvironmentScanner environmentScanner;
     Animator animator;
-    bool isAction = false;
+    bool InAction = false;
     private void Awake()
     {
         playerController = GetComponent<PlayerController>();
@@ -22,7 +22,7 @@ public class ParkourController : MonoBehaviour
     {
         var hitData1 = environmentScanner.ObstackleCheck();
         var hitData2 = environmentScanner.BarrierCheck();
-        if (Input.GetKeyDown(KeyCode.Space) && playerController.freeRun && !isAction)
+        if (Input.GetKeyDown(KeyCode.Space) && playerController.freeRun && !InAction)
         {
             if (!playerController.isGrounded)
             {
@@ -34,7 +34,7 @@ public class ParkourController : MonoBehaviour
             }
             StartCoroutine(DoParkourAction2(RunningJumpAction));
         }
-        if ((Input.GetKeyDown(KeyCode.Space) || playerController.freeRun) && !isAction)
+        if ((Input.GetKeyDown(KeyCode.Space) || playerController.freeRun) && !InAction)
         {
             if (!playerController.isGrounded)
             {
@@ -53,7 +53,7 @@ public class ParkourController : MonoBehaviour
                 }
             }
         }
-        if ((Input.GetKeyDown(KeyCode.LeftAlt) || playerController.freeRun) && !isAction)
+        if ((Input.GetKeyDown(KeyCode.LeftAlt) || playerController.freeRun) && !InAction)
         {
             if (!playerController.isGrounded)
             {
@@ -72,7 +72,7 @@ public class ParkourController : MonoBehaviour
                 }
             }
         }
-        if (playerController.IsOnLedge && !isAction && !hitData1.forwardHitFound && (Input.GetKeyDown(KeyCode.Space) || playerController.freeRun))
+        if (playerController.IsOnLedge && !InAction && !hitData1.forwardHitFound && (Input.GetKeyDown(KeyCode.Space) || playerController.freeRun))
         {
             if (!playerController.isGrounded)
             {
@@ -91,7 +91,7 @@ public class ParkourController : MonoBehaviour
     }
     IEnumerator DoParkourAction(ParkourAction action)
     {
-        isAction = true;
+        InAction = true;
         playerController.SetControl(false);
         animator.SetBool("mirrorAction", action.Mirror);
         animator.CrossFade(action.AnimName, 0.2f);
@@ -124,20 +124,20 @@ public class ParkourController : MonoBehaviour
         }
         yield return new WaitForSeconds(action.PostActionDelay);
         playerController.SetControl(true);
-        isAction = false;
+        InAction = false;
     }
     IEnumerator DoParkourAction2(ParkourAction action)
     {
-        isAction = true;
+        InAction = true;
         animator.CrossFade(action.AnimName, 0.2f);
         yield return null;
         var animState = animator.GetNextAnimatorStateInfo(0);
         yield return new WaitForSeconds(animState.length);
-        isAction = false;
+        InAction = false;
     }
     IEnumerator DoParkourAction(CrouchingActions action)
     {
-        isAction = true;
+        InAction = true;
         playerController.SetControl(false);
         animator.CrossFade(action.AnimName, 0.2f);
         yield return null;
@@ -161,6 +161,6 @@ public class ParkourController : MonoBehaviour
             yield return null;
         }
         playerController.SetControl(true);
-        isAction = false;
+        InAction = false;
     }
 }
