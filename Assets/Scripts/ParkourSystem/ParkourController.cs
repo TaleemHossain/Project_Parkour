@@ -12,6 +12,7 @@ public class ParkourController : MonoBehaviour
     EnvironmentScanner environmentScanner;
     ClimbController climbController;
     Animator animator;
+    ClimbPoint climbPoint;
     public bool InAction = false;
     private void Awake()
     {
@@ -118,6 +119,7 @@ public class ParkourController : MonoBehaviour
             timer += Time.deltaTime;
             if ((Input.GetKeyDown(KeyCode.Space) || playerController.freeRun) && environmentScanner.ClimbLedgeCheck(transform.forward, out RaycastHit ledgeHit) && !playerController.isHanging)
             {
+                climbPoint = ledgeHit.transform.GetComponent<ClimbPoint>();
                 playerController.SetControl(false);
                 StartCoroutine(climbController.JumpToLedge("JumpToHang", ledgeHit.transform, 0.10f, 0.75f));
             }

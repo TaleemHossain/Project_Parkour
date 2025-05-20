@@ -10,7 +10,7 @@ public class ClimbPoint : MonoBehaviour
     {
         foreach (var neighbour in neighbours)
         {
-            neighbour.direction = neighbour.point.transform.position - this.transform.position;
+            neighbour.direction = (neighbour.point.transform.position - this.transform.position).normalized;
         }
         var twoWayNeigbours = neighbours.Where(n => n.isTwoWay);
         foreach (var neighbour in twoWayNeigbours)
@@ -29,6 +29,17 @@ public class ClimbPoint : MonoBehaviour
         };
         neighbours.Add(neighbour);
     }
+    public Neighbour GetNeighbour(Vector3 direction, float maxAllowedAngle)
+    {
+        foreach (var neighbour in neighbours)
+        {
+            if (Vector3.Angle(neighbour.direction, direction) < maxAllowedAngle)
+            {
+                return neighbour;
+            }
+        }
+        return null;
+    }
     private void OnDrawGizmos()
     {
         Debug.DrawRay(transform.position, transform.forward, Color.blue);
@@ -38,7 +49,7 @@ public class ClimbPoint : MonoBehaviour
             {
                 Debug.DrawLine(transform.position, neighbour.point.transform.position, neighbour.isTwoWay ? Color.green : Color.red);
             }
-        }       
+        }
     }
 }
 [System.Serializable]
