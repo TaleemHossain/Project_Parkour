@@ -21,8 +21,8 @@ public class PlayerController : MonoBehaviour
     public bool isGrounded;
     public bool isCrouched = false;
     public bool freeRun = false;
+    public bool isHanging = false;
     bool shift;
-    public bool InAction { get; private set; } 
     bool hasControl = true;
     public bool IsOnLedge { get; set; }
     public EnvironmentScanner.LedgeData LedgeData { get; set; }
@@ -33,6 +33,7 @@ public class PlayerController : MonoBehaviour
     Camera_Controller cameraController;
     Animator animator;
     CharacterController characterController;
+    ParkourController parkourController;
     EnvironmentScanner environmentScanner;
     Quaternion targetRotation;
     public class MatchTargetParameters
@@ -54,6 +55,7 @@ public class PlayerController : MonoBehaviour
         if (characterController == null) Debug.LogError("CharacterController component is missing on " + gameObject.name);
         environmentScanner = GetComponent<EnvironmentScanner>();
         if (environmentScanner == null) Debug.LogError("EnvironmentScanner component is missing on " + gameObject.name);
+        parkourController = GetComponent<ParkourController>();
     }
     private void Update()
     {
@@ -66,6 +68,12 @@ public class PlayerController : MonoBehaviour
         moveDir = desiredMoveDir;
 
         if (!hasControl) return;
+
+        if (isHanging)
+        {
+            cameraController.distance = 5f;
+            return;
+        }
 
         GroundCheck();
         animator.SetBool("isGrounded", isGrounded);
@@ -214,16 +222,16 @@ public class PlayerController : MonoBehaviour
         characterController.height = isCrouched ? 1.26f : 1.66f;
         characterController.center = isCrouched ? new Vector3(0.12f, 0.66f, 0.2f) : new Vector3(0f, 0.86f, 0.1f);
     }
-    public IEnumerator DoAction(string animName, Quaternion TargetRotation, MatchTargetParameters matchTarget, bool rotate = false, float postActionDelay = 0f, bool mirror = false)
+    public IEnumerator DoAction(string animName, Quaternion TargetRotation, MatchTargetParameters matchTarget = null, bool rotate = false, float postActionDelay = 0f, bool mirror = false)
     {
-        InAction = true;
+        parkourController.InAction = true;
         animator.SetBool("mirrorAction", mirror);
         animator.CrossFade(animName, 0.2f);
         yield return null;
         var animState = animator.GetNextAnimatorStateInfo(0);
         if (!animState.IsName(animName))
         {
-            Debug.LogError("Wrong Animation name");
+            Debug.Log("Wrong Animation name");
         }
         float timer = 0f;
         while (timer <= animState.length)
@@ -247,6 +255,6 @@ public class PlayerController : MonoBehaviour
             yield return null;
         }
         yield return new WaitForSeconds(postActionDelay);
-        InAction = false;
+        parkourController.InAction = false;
     }
 }
