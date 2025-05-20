@@ -229,10 +229,6 @@ public class PlayerController : MonoBehaviour
         animator.CrossFade(animName, 0.2f);
         yield return null;
         var animState = animator.GetNextAnimatorStateInfo(0);
-        if (!animState.IsName(animName))
-        {
-            Debug.Log("Wrong Animation name");
-        }
         float timer = 0f;
         while (timer <= animState.length)
         {
