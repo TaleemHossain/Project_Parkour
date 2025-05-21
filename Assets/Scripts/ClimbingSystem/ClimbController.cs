@@ -9,7 +9,6 @@ public class ClimbController : MonoBehaviour
     PlayerController playerController;
     EnvironmentScanner environmentScanner;
     ParkourController parkourController;
-    ClimbPointContainer climbPointContainer;
     [SerializeField] float maxAngleAllowed = 15f;
     private void Awake()
     {
@@ -44,8 +43,21 @@ public class ClimbController : MonoBehaviour
             float h = Input.GetAxis("Horizontal");
             float v = Input.GetAxis("Vertical");
             var inputDir = new Vector3(-h, v, 0).normalized;
-            if (inputDir.sqrMagnitude <= 0.1f) return;
-
+            if (inputDir.sqrMagnitude <= 0.1f)
+            {
+                if (Input.GetKeyDown(KeyCode.Space))
+                {
+                    StartCoroutine(JumpFromHang());
+                    currentPoint = null;
+                }
+                return;
+            }
+            if (currentPoint.MountPoint && inputDir.y > 0.5f && Input.GetKeyDown(KeyCode.Space))
+            {
+                StartCoroutine(HangToClimb());
+                currentPoint = null;
+                return;
+            }
             if (currentPoint.GetNeighbour(inputDir, maxAngleAllowed) == null) return;
             var nextPoint = currentPoint.GetNeighbour(inputDir, maxAngleAllowed);
             if (nextPoint != null)
@@ -91,7 +103,7 @@ public class ClimbController : MonoBehaviour
             }
         }
     }
-    public IEnumerator JumpToLedge(string anim, Transform ledge, float matchStartTime, float matchTargetTime, AvatarTarget hand = AvatarTarget.RightHand, Vector3? Offset = null) 
+    public IEnumerator JumpToLedge(string anim, Transform ledge, float matchStartTime, float matchTargetTime, AvatarTarget hand = AvatarTarget.RightHand, Vector3? Offset = null)
     {
         Vector3 offset = Offset ?? Vector3.zero;
         var matchTargetParameters = new PlayerController.MatchTargetParameters()
@@ -110,5 +122,21 @@ public class ClimbController : MonoBehaviour
         yield return playerController.DoAction(anim, Quaternion.LookRotation(-ledge.forward), matchTargetParameters, true);
         playerController.freeRun = false;
         playerController.isCrouched = false;
+    }
+    IEnumerator JumpFromHang()
+    {
+        playerController.isHanging = false;
+        yield return playerController.DoAction("JumpFromHang");
+        playerController.ResetTargetRotation();
+        playerController.SetControl(true);
+    }
+    IEnumerator HangToClimb()
+    {
+        playerController.isHanging = false;
+        yield return playerController.DoAction("HangToClimb");
+        playerController.GetComponent<CharacterController>().enabled = true;
+        playerController.ResetTargetRotation();
+        yield return new WaitForSeconds(0.5f);
+        playerController.SetControl(true);
     }
 }

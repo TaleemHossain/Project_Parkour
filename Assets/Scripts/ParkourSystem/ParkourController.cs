@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -25,7 +26,7 @@ public class ParkourController : MonoBehaviour
     {
         if (playerController.isHanging) return;
         if (InAction) return;
-        if (!playerController.isGrounded) return;  
+        if (!playerController.isGrounded) return;
         if (playerController.isCrouched) return;
 
         var hitData1 = environmentScanner.ObstackleCheck();
@@ -59,7 +60,7 @@ public class ParkourController : MonoBehaviour
                 }
             }
         }
-        
+
         if (playerController.IsOnLedge && !hitData1.forwardHitFound && (Input.GetKeyDown(KeyCode.Space) || playerController.freeRun))
         {
 
@@ -117,25 +118,7 @@ public class ParkourController : MonoBehaviour
         while (timer <= animState.length)
         {
             timer += Time.deltaTime;
-            bool hitFound = environmentScanner.ClimbLedgeCheck(transform.forward, out RaycastHit ledgeHit);
-            if ((Input.GetKeyDown(KeyCode.Space) || playerController.freeRun) && hitFound && !playerController.isHanging)
-            {
-                climbController.currentPoint = ledgeHit.transform.GetComponent<ClimbPoint>();
-                if (climbController.currentPoint == null && hitFound)
-                {
-                    climbController.currentPoint = ledgeHit.transform.GetComponent<ClimbPointContainer>().GetClimbPoint(this.transform.position);
-                }
-                if (climbController.currentPoint == null)
-                {
-                    Debug.Log("Current point is null");
-                }
-                else
-                {
-                    playerController.SetControl(false);
-                    InAction = false;
-                    StartCoroutine(climbController.JumpToLedge("HangingIdle", climbController.currentPoint.transform, 0.0f, 0.2f, AvatarTarget.RightHand, new Vector3(0.02f, -0.03f, 0.05f)));
-                }
-            }
+            GrabLedgeMidAir();
             yield return null;
         }
         InAction = false;
@@ -167,5 +150,27 @@ public class ParkourController : MonoBehaviour
         }
         playerController.SetControl(true);
         InAction = false;
+    }
+    public void GrabLedgeMidAir()
+    {
+        bool hitFound = environmentScanner.ClimbLedgeCheck(transform.forward, out RaycastHit ledgeHit);
+        if ((Input.GetKeyDown(KeyCode.Space) || playerController.freeRun) && hitFound && !playerController.isHanging)
+        {
+            climbController.currentPoint = ledgeHit.transform.GetComponent<ClimbPoint>();
+            if (climbController.currentPoint == null && hitFound)
+            {
+                climbController.currentPoint = ledgeHit.transform.GetComponent<ClimbPointContainer>().GetClimbPoint(this.transform.position);
+            }
+            if (climbController.currentPoint == null)
+            {
+                Debug.Log("Current point is null");
+            }
+            else
+            {
+                playerController.SetControl(false);
+                InAction = false;
+                StartCoroutine(climbController.JumpToLedge("HangingIdle", climbController.currentPoint.transform, 0.0f, 0.2f, AvatarTarget.RightHand, new Vector3(0.02f, -0.03f, 0.05f)));
+            }
+        }
     }
 }

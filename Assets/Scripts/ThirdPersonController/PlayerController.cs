@@ -74,12 +74,17 @@ public class PlayerController : MonoBehaviour
             cameraController.distance = 5f;
             return;
         }
+        else
+        {
+            cameraController.distance = 4f;
+        }
 
         GroundCheck();
         animator.SetBool("isGrounded", isGrounded);
 
         if (!isGrounded)
         {
+            parkourController.GrabLedgeMidAir();
             ySpeed += Physics.gravity.y * Time.deltaTime;
             velocity = transform.forward * moveSpeed / 2;
         }
@@ -131,13 +136,15 @@ public class PlayerController : MonoBehaviour
             cameraController.distance = 4f;
             speedMultiplier = 1f;
         }
-
-        characterController.Move(speedMultiplier * velocity * Time.deltaTime);
+        if (characterController.enabled)
+        {
+            characterController.Move(speedMultiplier * velocity * Time.deltaTime);
+        }
 
         if (moveAmount > 0 && moveDir.magnitude > 0.1f)
-        {
-            targetRotation = Quaternion.LookRotation(moveDir);
-        }
+            {
+                targetRotation = Quaternion.LookRotation(moveDir);
+            }
         transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
     }
     void GroundCheck()
@@ -222,7 +229,7 @@ public class PlayerController : MonoBehaviour
         characterController.height = isCrouched ? 1.26f : 1.66f;
         characterController.center = isCrouched ? new Vector3(0.12f, 0.66f, 0.2f) : new Vector3(0f, 0.86f, 0.1f);
     }
-    public IEnumerator DoAction(string animName, Quaternion TargetRotation, MatchTargetParameters matchTarget = null, bool rotate = false, float postActionDelay = 0f, bool mirror = false)
+    public IEnumerator DoAction(string animName, Quaternion TargetRotation = new Quaternion(), MatchTargetParameters matchTarget = null, bool rotate = false, float postActionDelay = 0f, bool mirror = false)
     {
         parkourController.InAction = true;
         animator.SetBool("mirrorAction", mirror);
@@ -232,8 +239,10 @@ public class PlayerController : MonoBehaviour
         float timer = 0f;
         while (timer <= animState.length)
         {
+            float rotateStartTime = (matchTarget == null) ? 0f : matchTarget.startTime;
+            float normalizedTime = timer / animState.length;
             timer += Time.deltaTime;
-            if (rotate)
+            if (rotate && normalizedTime > rotateStartTime)
             {
                 transform.rotation = Quaternion.RotateTowards(transform.rotation, TargetRotation, rotationSpeed * Time.deltaTime);
             }
@@ -252,5 +261,9 @@ public class PlayerController : MonoBehaviour
         }
         yield return new WaitForSeconds(postActionDelay);
         parkourController.InAction = false;
+    }
+    public void ResetTargetRotation()
+    {
+        targetRotation = transform.rotation;
     }
 }

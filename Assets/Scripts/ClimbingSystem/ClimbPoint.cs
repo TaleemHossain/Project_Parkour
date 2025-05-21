@@ -5,6 +5,7 @@ using UnityEngine;
 
 public class ClimbPoint : MonoBehaviour
 {
+    [SerializeField] bool mountPoint;
     [SerializeField] List<Neighbour> neighbours;
     private void Awake()
     {
@@ -32,11 +33,11 @@ public class ClimbPoint : MonoBehaviour
                 }
                 else if (neighbour.point.transform.forward == Vector3.back)
                 {
-                    neighbour.direction.x = - (neighbour.point.transform.position.x - transform.position.x);
+                    neighbour.direction.x = -(neighbour.point.transform.position.x - transform.position.x);
                 }
                 else if (neighbour.point.transform.forward == Vector3.right)
                 {
-                    neighbour.direction.x = - (neighbour.point.transform.position.z - transform.position.z);
+                    neighbour.direction.x = -(neighbour.point.transform.position.z - transform.position.z);
                 }
                 else if (neighbour.point.transform.forward == Vector3.left)
                 {
@@ -80,6 +81,7 @@ public class ClimbPoint : MonoBehaviour
             }
         }
     }
+    public bool MountPoint => mountPoint;
 }
 [System.Serializable]
 public class Neighbour
