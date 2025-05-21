@@ -8,14 +8,43 @@ public class ClimbPoint : MonoBehaviour
     [SerializeField] List<Neighbour> neighbours;
     private void Awake()
     {
-        foreach (var neighbour in neighbours)
-        {
-            neighbour.direction = (neighbour.point.transform.position - this.transform.position).normalized;
-        }
         var twoWayNeigbours = neighbours.Where(n => n.isTwoWay);
         foreach (var neighbour in twoWayNeigbours)
         {
             neighbour.point.CreateConnections(this, -neighbour.direction, neighbour.connectionType, neighbour.isTwoWay);
+        }
+    }
+    public void Start()
+    {
+        foreach (var neighbour in neighbours)
+        {
+            if (neighbour.point.transform.parent == transform.parent)
+            {
+                neighbour.direction = neighbour.point.transform.localPosition - transform.localPosition;
+            }
+            else
+            {
+                neighbour.direction.y = neighbour.point.transform.position.y - transform.position.y;
+
+                if (neighbour.point.transform.forward == Vector3.forward)
+                {
+                    neighbour.direction.x = neighbour.point.transform.position.x - transform.position.x;
+                }
+                else if (neighbour.point.transform.forward == Vector3.back)
+                {
+                    neighbour.direction.x = - (neighbour.point.transform.position.x - transform.position.x);
+                }
+                else if (neighbour.point.transform.forward == Vector3.right)
+                {
+                    neighbour.direction.x = - (neighbour.point.transform.position.z - transform.position.z);
+                }
+                else if (neighbour.point.transform.forward == Vector3.left)
+                {
+                    neighbour.direction.x = neighbour.point.transform.position.z - transform.position.z;
+                }
+            }
+            neighbour.direction.z = 0;
+            neighbour.direction = neighbour.direction.normalized;
         }
     }
     public void CreateConnections(ClimbPoint point, Vector2 direction, ConnectionType connectionType, bool isTwoWay = true)
@@ -59,6 +88,5 @@ public class Neighbour
     public Vector3 direction;
     public ConnectionType connectionType;
     public bool isTwoWay = true;
-
 }
 public enum ConnectionType {Jump, Move}

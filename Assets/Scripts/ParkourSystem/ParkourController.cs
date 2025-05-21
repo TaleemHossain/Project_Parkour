@@ -12,7 +12,7 @@ public class ParkourController : MonoBehaviour
     EnvironmentScanner environmentScanner;
     ClimbController climbController;
     Animator animator;
-    ClimbPoint climbPoint;
+    ClimbPointContainer climbPointContainer;
     public bool InAction = false;
     private void Awake()
     {
@@ -117,11 +117,24 @@ public class ParkourController : MonoBehaviour
         while (timer <= animState.length)
         {
             timer += Time.deltaTime;
-            if ((Input.GetKeyDown(KeyCode.Space) || playerController.freeRun) && environmentScanner.ClimbLedgeCheck(transform.forward, out RaycastHit ledgeHit) && !playerController.isHanging)
+            bool hitFound = environmentScanner.ClimbLedgeCheck(transform.forward, out RaycastHit ledgeHit);
+            if ((Input.GetKeyDown(KeyCode.Space) || playerController.freeRun) && hitFound && !playerController.isHanging)
             {
-                climbPoint = ledgeHit.transform.GetComponent<ClimbPoint>();
-                playerController.SetControl(false);
-                StartCoroutine(climbController.JumpToLedge("JumpToHang", ledgeHit.transform, 0.10f, 0.75f));
+                climbController.currentPoint = ledgeHit.transform.GetComponent<ClimbPoint>();
+                if (climbController.currentPoint == null && hitFound)
+                {
+                    climbController.currentPoint = ledgeHit.transform.GetComponent<ClimbPointContainer>().GetClimbPoint(this.transform.position);
+                }
+                if (climbController.currentPoint == null)
+                {
+                    Debug.Log("Current point is null");
+                }
+                else
+                {
+                    playerController.SetControl(false);
+                    InAction = false;
+                    StartCoroutine(climbController.JumpToLedge("HangingIdle", climbController.currentPoint.transform, 0.0f, 0.2f, AvatarTarget.RightHand, new Vector3(0.02f, -0.03f, 0.05f)));
+                }
             }
             yield return null;
         }

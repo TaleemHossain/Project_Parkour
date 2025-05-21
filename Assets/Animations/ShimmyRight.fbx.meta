@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 73d256a30a4c5db45ba0ee6d4e425e29
+guid: 45757f3929bdd5b418bbb289f3390023
 ModelImporter:
   serializedVersion: 22200
   internalIDToNameTable: []
@@ -31,14 +31,14 @@ ModelImporter:
     extraUserProperties: []
     clipAnimations:
     - serializedVersion: 16
-      name: HopRight
+      name: ShimmyRight
       takeName: mixamo.com
       internalID: -203655887218126122
       firstFrame: 0
-      lastFrame: 50
+      lastFrame: 35
       wrapMode: 0
       orientationOffsetY: 0
-      level: 0.17
+      level: 0.74
       cycleOffset: 0
       loop: 0
       hasAdditiveReferencePose: 0
@@ -51,7 +51,7 @@ ModelImporter:
       keepOriginalPositionY: 1
       keepOriginalPositionXZ: 0
       heightFromFeet: 0
-      mirror: 0
+      mirror: 1
       bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
       curves: []
       events: []

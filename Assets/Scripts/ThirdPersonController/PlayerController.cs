@@ -226,7 +226,7 @@ public class PlayerController : MonoBehaviour
     {
         parkourController.InAction = true;
         animator.SetBool("mirrorAction", mirror);
-        animator.CrossFade(animName, 0.2f);
+        animator.CrossFadeInFixedTime(animName, 0.2f);
         yield return null;
         var animState = animator.GetNextAnimatorStateInfo(0);
         float timer = 0f;
