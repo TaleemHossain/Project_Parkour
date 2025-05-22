@@ -10,7 +10,7 @@ public class Camera_Controller : MonoBehaviour
     [SerializeField] public float distance = 5f;
     [SerializeField] float minVerticalAngle = -20f;
     [SerializeField] float maxVerticalAngle = 45f;
-    [SerializeField] Vector2 framingOffset;
+    [SerializeField] public Vector3 framingOffset;
     [SerializeField] bool invertY = false;
     [SerializeField] bool invertX = false;
     float rotationY;
@@ -31,7 +31,7 @@ public class Camera_Controller : MonoBehaviour
             mouseSensitivityX *= -1;
         }
     }
-    private void Update()
+    private void LateUpdate()
     {
         if (followTarget == null)
         {

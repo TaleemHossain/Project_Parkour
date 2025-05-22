@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour
 {
@@ -16,17 +18,31 @@ public class PlayerController : MonoBehaviour
     [SerializeField] LayerMask groundLayer;
     [Header("Stamina settings")]
     [SerializeField] float maxStamina = 15f;
-    private float currentStamina;
+    [Header("Gun Settings")]
+    [SerializeField] GameObject GunHolder;
+    [SerializeField] float ReloadTime = 3f;
+    [SerializeField] float bulltetTimeGap = 0.1f;
+    [SerializeField] GameObject bulletPrefab;
+    [SerializeField] Transform firePoint;
+    [SerializeField] Transform crfirePoint;
+    [SerializeField] float bulletSpeed = 20f;
+    [SerializeField] float spread = 0.05f;
+    [Header("Boolean Variables")]
     bool isResting = false;
     public bool isGrounded;
     public bool isCrouched = false;
     public bool freeRun = false;
     public bool isHanging = false;
+    public bool isAiming = false;
+    private float currentStamina;
     bool shift;
     bool hasControl = true;
     public bool IsOnLedge { get; set; }
     public EnvironmentScanner.LedgeData LedgeData { get; set; }
     float ySpeed = 0f;
+    int bulletCount = 0;
+    float reloadTimer = 0f;
+    float fireCooldown = 0f;
     public Vector3 desiredMoveDir;
     Vector3 moveDir;
     Vector3 velocity = Vector3.zero;
@@ -67,7 +83,6 @@ public class PlayerController : MonoBehaviour
         desiredMoveDir = cameraController.PlanarRotation * direction;
         moveDir = desiredMoveDir;
 
-        if (!hasControl) return;
 
         if (isHanging)
         {
@@ -78,6 +93,12 @@ public class PlayerController : MonoBehaviour
         {
             cameraController.distance = 4f;
         }
+
+        if (!hasControl) return;
+
+        bool aiming = Input.GetMouseButton(1);
+        UpdateAim(aiming);
+        UpdateFire();
 
         GroundCheck();
         animator.SetBool("isGrounded", isGrounded);
@@ -99,7 +120,10 @@ public class PlayerController : MonoBehaviour
             }
 
             shift = Input.GetKey(KeyCode.LeftShift);
-            UpdateFreeRun();
+            if (!isAiming)
+            {
+                UpdateFreeRun();
+            }
 
             IsOnLedge = environmentScanner.PlatformLedgeCheck(desiredMoveDir, out EnvironmentScanner.LedgeData ledgeData);
             if (IsOnLedge)
@@ -126,7 +150,7 @@ public class PlayerController : MonoBehaviour
             cameraController.distance = 5f;
             speedMultiplier = SprintMult;
         }
-        else if (isCrouched)
+        else if (isCrouched || isAiming)
         {
             cameraController.distance = 3f;
             speedMultiplier = CrouchMult;
@@ -220,14 +244,109 @@ public class PlayerController : MonoBehaviour
         if (!state && environmentScanner.RoofCheck().IsThereShortRoof)
             return;
         isCrouched = state;
-        if (isCrouched)
+        if (isCrouched && !isAiming)
         {
             animator.CrossFade("CrouchLocomotion", 0.2f);
-            freeRun = false;
+        }
+        if (isCrouched && isAiming)
+        {
+            animator.CrossFade("Aiming Actions.Crouching", 0.2f);
         }
         animator.SetBool("isCrouched", isCrouched);
         characterController.height = isCrouched ? 1.26f : 1.66f;
         characterController.center = isCrouched ? new Vector3(0.12f, 0.66f, 0.2f) : new Vector3(0f, 0.86f, 0.1f);
+    }
+    void UpdateAim(bool state)
+    {
+        if (state == true)
+        {
+            if (isAiming == true)
+            {
+                return;
+            }
+            else
+            {
+                isAiming = true;
+                parkourController.InAction = true;
+                freeRun = false;
+                animator.SetBool("isAiming", true);
+                if (isCrouched)
+                {
+                    animator.CrossFade("Aiming Actions.Crouching", 0.2f);
+                }
+                else
+                {
+                    animator.CrossFade("Aiming Actions.Standing", 0.2f);
+                }
+                GunHolder.SetActive(true);
+            }
+        }
+        else
+        {
+            if (isAiming == false)
+            {
+                return;
+            }
+            else
+            {
+                isAiming = false;
+                parkourController.InAction = false;
+                animator.SetBool("isAiming", false);
+                GunHolder.SetActive(false);
+            }
+        }
+    }
+    void UpdateFire()
+    {
+        reloadTimer += Time.deltaTime;
+        fireCooldown += Time.deltaTime;
+        if (isAiming == false) return;
+        else
+        {
+            bool fireButton = Input.GetMouseButton(0);
+            if (bulletCount < 30)
+            {
+                if (fireButton && fireCooldown >= bulltetTimeGap)
+                {
+                    Rigidbody rb;
+                    Vector3 shootDirection;
+                    if (isCrouched == false)
+                    {
+                        GameObject bullet = Instantiate(bulletPrefab, firePoint.position, firePoint.rotation);
+                        rb = bullet.GetComponent<Rigidbody>();
+
+                        shootDirection = firePoint.forward;
+                    }
+                    else
+                    {
+                        GameObject bullet = Instantiate(bulletPrefab, crfirePoint.position, crfirePoint.rotation);
+                        rb = bullet.GetComponent<Rigidbody>();
+
+                        shootDirection = crfirePoint.forward;
+                    }
+                    shootDirection += new Vector3(
+                        Random.Range(-spread, spread),
+                        Random.Range(-spread, spread),
+                        Random.Range(-spread, spread)
+                    );
+                    shootDirection.Normalize();
+
+                    rb.linearVelocity = shootDirection * bulletSpeed;
+                    bulletCount++;
+                    fireCooldown = 0f;
+                    reloadTimer = 0f;
+                }
+            }
+            else
+            {
+                reloadTimer += Time.deltaTime;
+                if (reloadTimer >= ReloadTime)
+                {
+                    reloadTimer = 0f;
+                    bulletCount = 0;
+                }
+            }
+        }
     }
     public IEnumerator DoAction(string animName, Quaternion TargetRotation = new Quaternion(), MatchTargetParameters matchTarget = null, bool rotate = false, float postActionDelay = 0f, bool mirror = false)
     {
