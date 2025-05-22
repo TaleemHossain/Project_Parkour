@@ -6682,6 +6682,7 @@ GameObject:
   - component: {fileID: 221139656019029939}
   - component: {fileID: 967838338273818825}
   - component: {fileID: 1986918397759794472}
+  - component: {fileID: 2550144973746836499}
   m_Layer: 7
   m_Name: long ledge
   m_TagString: Untagged
@@ -6689,6 +6690,18 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!114 &2550144973746836499
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2550144973746836498}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5d3a00ca079309e4788d2a812f44b037, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!33 &2636236707603002731
 MeshFilter:
   m_ObjectHideFlags: 0

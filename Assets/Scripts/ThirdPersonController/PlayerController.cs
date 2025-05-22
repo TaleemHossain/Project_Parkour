@@ -142,9 +142,9 @@ public class PlayerController : MonoBehaviour
         }
 
         if (moveAmount > 0 && moveDir.magnitude > 0.1f)
-            {
-                targetRotation = Quaternion.LookRotation(moveDir);
-            }
+        {
+            targetRotation = Quaternion.LookRotation(moveDir);
+        }
         transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
     }
     void GroundCheck()

@@ -159,7 +159,10 @@ public class ParkourController : MonoBehaviour
             climbController.currentPoint = ledgeHit.transform.GetComponent<ClimbPoint>();
             if (climbController.currentPoint == null && hitFound)
             {
-                climbController.currentPoint = ledgeHit.transform.GetComponent<ClimbPointContainer>().GetClimbPoint(this.transform.position);
+                if (ledgeHit.transform.GetComponent<ClimbPointContainer>() != null)
+                {
+                    climbController.currentPoint = ledgeHit.transform.GetComponent<ClimbPointContainer>().GetClimbPoint(transform.position);
+                }
             }
             if (climbController.currentPoint == null)
             {

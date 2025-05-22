@@ -23,12 +23,16 @@ public class ClimbController : MonoBehaviour
             return;
         }
         bool hitFound = environmentScanner.ClimbLedgeCheck(transform.forward, out RaycastHit ledgeHit);
+        bool dropLedgeFound = environmentScanner.DropLedgeCheck(out RaycastHit dropLedgeHit);
         if (Input.GetKeyDown(KeyCode.Space) && hitFound && !playerController.isHanging)
         {
             currentPoint = ledgeHit.transform.GetComponent<ClimbPoint>();
             if (currentPoint == null && hitFound)
             {
-                currentPoint = ledgeHit.transform.GetComponent<ClimbPointContainer>().GetClimbPoint(transform.position);
+                if (ledgeHit.transform.GetComponent<ClimbPointContainer>() != null)
+                {
+                    currentPoint = ledgeHit.transform.GetComponent<ClimbPointContainer>().GetClimbPoint(transform.position);
+                }
             }
             if (currentPoint == null)
             {
@@ -37,18 +41,47 @@ public class ClimbController : MonoBehaviour
             playerController.SetControl(false);
             StartCoroutine(JumpToLedge("IdleToHanging", currentPoint.transform, 0.41f, 0.54f));
         }
+        else if (Input.GetKeyDown(KeyCode.LeftAlt) && dropLedgeFound && !playerController.isHanging && playerController.isGrounded)
+        {
+            Debug.Log("Drop ledge found : " + dropLedgeFound);
+            currentPoint = dropLedgeHit.transform.GetComponent<ClimbPoint>();
+            if (currentPoint == null && dropLedgeFound)
+            {
+                Debug.Log("Iterating through climbpoints of " + dropLedgeHit.transform);
+                if (dropLedgeHit.transform.GetComponent<ClimbPointContainer>() != null)
+                {
+                    currentPoint = dropLedgeHit.transform.GetComponent<ClimbPointContainer>().GetClimbPoint(dropLedgeHit.point);
+                    Debug.Log("Best climbpoint Found : " + currentPoint.transform);
+                }
+            }
+            if (currentPoint == null)
+            {
+                return;
+            }
+            playerController.SetControl(false);
+            StartCoroutine(JumpToLedge("DropToLedge", currentPoint.transform, 0.3f, 0.45f, AvatarTarget.RightHand, new Vector3(0f, -0.25f, 0.02f)));
+            // transform.rotation = Quaternion.Euler(0, 90, 0);
+        }
         else
         {
             if (currentPoint == null) return;
             float h = Input.GetAxis("Horizontal");
             float v = Input.GetAxis("Vertical");
             var inputDir = new Vector3(-h, v, 0).normalized;
+
+            if (Input.GetKeyDown(KeyCode.LeftAlt))
+            {
+                StartCoroutine(DropActions("HangToDrop"));
+                currentPoint = null;
+                return;
+            }
             if (inputDir.sqrMagnitude <= 0.1f)
             {
                 if (Input.GetKeyDown(KeyCode.Space))
                 {
-                    StartCoroutine(JumpFromHang());
+                    StartCoroutine(DropActions("JumpFromHang"));
                     currentPoint = null;
+                    return;
                 }
                 return;
             }
@@ -123,10 +156,11 @@ public class ClimbController : MonoBehaviour
         playerController.freeRun = false;
         playerController.isCrouched = false;
     }
-    IEnumerator JumpFromHang()
+    IEnumerator DropActions(string animName)
     {
+
         playerController.isHanging = false;
-        yield return playerController.DoAction("JumpFromHang");
+        yield return playerController.DoAction(animName);
         playerController.ResetTargetRotation();
         playerController.SetControl(true);
     }
