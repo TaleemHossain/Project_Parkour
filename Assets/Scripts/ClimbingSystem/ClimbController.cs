@@ -43,24 +43,22 @@ public class ClimbController : MonoBehaviour
         }
         else if (Input.GetKeyDown(KeyCode.LeftAlt) && dropLedgeFound && !playerController.isHanging && playerController.isGrounded)
         {
-            Debug.Log("Drop ledge found : " + dropLedgeFound);
             currentPoint = dropLedgeHit.transform.GetComponent<ClimbPoint>();
             if (currentPoint == null && dropLedgeFound)
             {
-                Debug.Log("Iterating through climbpoints of " + dropLedgeHit.transform);
                 if (dropLedgeHit.transform.GetComponent<ClimbPointContainer>() != null)
                 {
                     currentPoint = dropLedgeHit.transform.GetComponent<ClimbPointContainer>().GetClimbPoint(dropLedgeHit.point);
-                    Debug.Log("Best climbpoint Found : " + currentPoint.transform);
                 }
             }
             if (currentPoint == null)
             {
                 return;
             }
+            transform.forward = currentPoint.transform.forward;
+            transform.position = currentPoint.transform.position + Vector3.up * 0.05f - currentPoint.transform.forward * 0.5f;
             playerController.SetControl(false);
-            StartCoroutine(JumpToLedge("DropToLedge", currentPoint.transform, 0.3f, 0.45f, AvatarTarget.RightHand, new Vector3(0f, -0.25f, 0.02f)));
-            // transform.rotation = Quaternion.Euler(0, 90, 0);
+            StartCoroutine(JumpToLedge("DropToLedge", currentPoint.transform, 0.3f, 0.45f, AvatarTarget.RightHand, new Vector3(-0.03f, -0.35f, -0.19f)));
         }
         else
         {
@@ -113,7 +111,7 @@ public class ClimbController : MonoBehaviour
                     {
                         if (nextPoint.direction.y > 0)
                         {
-                            StartCoroutine(JumpToLedge("HopUp", currentPoint.transform, 0.34f, 0.7f, AvatarTarget.RightHand, new Vector3(0f, 0f, 0f)));
+                            StartCoroutine(JumpToLedge("HopUp", currentPoint.transform, 0.34f, 0.7f, AvatarTarget.RightHand, new Vector3(0f, 0.01f, 0f)));
                         }
                         else
                         {
