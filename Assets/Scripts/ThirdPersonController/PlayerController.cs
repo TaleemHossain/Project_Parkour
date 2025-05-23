@@ -25,8 +25,9 @@ public class PlayerController : MonoBehaviour
     [SerializeField] GameObject bulletPrefab;
     [SerializeField] Transform firePoint;
     [SerializeField] Transform crfirePoint;
-    [SerializeField] float bulletSpeed = 20f;
+    [SerializeField] float bulletSpeed = 30f;
     [SerializeField] float spread = 0.05f;
+    [SerializeField] GameObject muzzleFlash;
     [Header("Boolean Variables")]
     bool isResting = false;
     public bool isGrounded;
@@ -313,6 +314,8 @@ public class PlayerController : MonoBehaviour
                     if (isCrouched == false)
                     {
                         GameObject bullet = Instantiate(bulletPrefab, firePoint.position, firePoint.rotation);
+                        GameObject effect = Instantiate(muzzleFlash, firePoint.position, firePoint.rotation);
+                        Destroy(effect, 0.1f);
                         rb = bullet.GetComponent<Rigidbody>();
 
                         shootDirection = firePoint.forward;
@@ -320,6 +323,8 @@ public class PlayerController : MonoBehaviour
                     else
                     {
                         GameObject bullet = Instantiate(bulletPrefab, crfirePoint.position, crfirePoint.rotation);
+                        GameObject effect = Instantiate(muzzleFlash, crfirePoint.position, crfirePoint.rotation);
+                        Destroy(effect, 0.1f);
                         rb = bullet.GetComponent<Rigidbody>();
 
                         shootDirection = crfirePoint.forward;

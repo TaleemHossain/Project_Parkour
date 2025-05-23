@@ -9,6 +9,9 @@ TagManager:
   - Long Jump
   - Platform
   - Underpass
+  - Target
+  - FxTemporaire
+  - Enemy
   layers:
   - Default
   - TransparentFX
