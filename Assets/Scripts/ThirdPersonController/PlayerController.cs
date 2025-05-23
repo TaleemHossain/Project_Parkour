@@ -6,6 +6,7 @@ using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour
 {
+    [SerializeField] float HitPoint = 200f;
     [Header("Speed Settings")]
     [SerializeField] float moveSpeed = 5f;
     [SerializeField] public float rotationSpeed = 720f;
@@ -35,6 +36,7 @@ public class PlayerController : MonoBehaviour
     public bool freeRun = false;
     public bool isHanging = false;
     public bool isAiming = false;
+    bool dead = false;
     private float currentStamina;
     bool shift;
     bool hasControl = true;
@@ -76,6 +78,9 @@ public class PlayerController : MonoBehaviour
     }
     private void Update()
     {
+        if (dead) return;
+        CheckDeath();
+
         float horizontal = Input.GetAxis("Horizontal");
         float vertical = Input.GetAxis("Vertical");
         float moveAmount = Mathf.Clamp(Mathf.Abs(horizontal) + Mathf.Abs(vertical), 0, 1);
@@ -390,4 +395,25 @@ public class PlayerController : MonoBehaviour
     {
         targetRotation = transform.rotation;
     }
+    public void TakeDamage(float damage)
+    {
+        HitPoint -= damage;
+    }
+    void CheckDeath()
+    {
+        if (HitPoint <= 0f)
+        {
+            StartCoroutine(PlayerDeath());
+        }
+    }
+    IEnumerator PlayerDeath()
+    {
+        dead = true;
+        SetControl(false);
+        animator.Play("Death");
+        parkourController.InAction = true;
+        characterController.enabled = false;
+        yield return new WaitForSeconds(animator.GetCurrentAnimatorStateInfo(0).length);
+        // Destroy(gameObject);
+    }   
 }

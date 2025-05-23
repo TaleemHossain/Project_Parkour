@@ -33,17 +33,18 @@ public class Bullet : MonoBehaviour
         {
             Instantiate(hitEffect, hitPoint, Quaternion.LookRotation(hitNormal));
         }
-
         if (other.CompareTag("Target"))
         {
             other.GetComponent<Target>().TakeDamage(damage);
         }
-
         if (other.CompareTag("Enemy"))
         {
             other.GetComponent<Enemy>().TakeDamage(damage);
         }
-
+        if (other.CompareTag("Player"))
+        {
+            other.GetComponent<PlayerController>().TakeDamage(damage);
+        }
         Destroy(gameObject);
     }
 }
