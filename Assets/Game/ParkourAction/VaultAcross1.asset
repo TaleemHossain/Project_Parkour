@@ -16,8 +16,8 @@ MonoBehaviour:
   obstacleTag: Vault
   obstacleRequired: 1
   rotateToObstacle: 1
-  minHeight: 0.5
-  maxHeight: 1
+  minHeight: 0.75
+  maxHeight: 1.2
   postActionDelay: 0
   enableTargetMatching: 1
   matchBodyPart: 4

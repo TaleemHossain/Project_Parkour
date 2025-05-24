@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: VaultOver
   m_EditorClassIdentifier: 
   animName: VaultOver
-  obstacleTag: Vaultable
+  obstacleTag: Blockade
   obstacleRequired: 1
   rotateToObstacle: 1
   minHeight: 0.75
