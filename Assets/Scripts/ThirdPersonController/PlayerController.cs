@@ -200,6 +200,7 @@ public class PlayerController : MonoBehaviour
         else cuurrentMode = 1;
         if (moveAmount > 0.1f && (playStarted == 0 || cuurrentMode != playStarted))
         {
+            PauseSound();
             PlayOnMove();
         }
         if (moveAmount <= 0.1f)
@@ -298,7 +299,7 @@ public class PlayerController : MonoBehaviour
             }
         }
     }
-    void UpdateCrouchMode(bool state)
+    public void UpdateCrouchMode(bool state)
     {
         if (isCrouched)
         {
@@ -316,8 +317,8 @@ public class PlayerController : MonoBehaviour
             animator.CrossFade("Aiming Actions.Crouching", 0.2f);
         }
         animator.SetBool("isCrouched", isCrouched);
-        characterController.height = isCrouched ? 1.26f : 1.66f;
-        characterController.center = isCrouched ? new Vector3(0.12f, 0.66f, 0.2f) : new Vector3(0f, 0.86f, 0.1f);
+        characterController.height = isCrouched ? 1.26f : 1.8f;
+        characterController.center = isCrouched ? new Vector3(0.12f, 0.66f, 0.2f) : new Vector3(0f, 0.925f, 0.1f);
     }
     void UpdateAim(bool state)
     {

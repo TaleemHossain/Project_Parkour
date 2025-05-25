@@ -516,6 +516,7 @@ MonoBehaviour:
     name: Click
     volume: 1
     pitch: 1
+    loop: 0
     source: {fileID: 0}
 --- !u!1 &227174373
 GameObject:
@@ -1762,7 +1763,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1705225046
 RectTransform:
   m_ObjectHideFlags: 0

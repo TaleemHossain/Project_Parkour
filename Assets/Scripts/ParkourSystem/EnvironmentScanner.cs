@@ -80,7 +80,7 @@ public class EnvironmentScanner : MonoBehaviour
         if (hitData.HitFound)
         {
             float heightOfHit = hitData.HitInfo.point.y - transform.position.y;
-            if (heightOfHit <= 1.75)
+            if (heightOfHit <= 1.79)
             {
                 hitData.IsThereShortRoof = true;
             }

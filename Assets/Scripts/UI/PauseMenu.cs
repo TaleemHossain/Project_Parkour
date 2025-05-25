@@ -33,6 +33,8 @@ public class PauseMenu : MonoBehaviour
     }
     public void LoadMenu()
     {
+        
+        FindFirstObjectByType<AudioManager>().PlaySound("Click");
         Time.timeScale = 1f;
         SceneManager.LoadScene(1);
     }

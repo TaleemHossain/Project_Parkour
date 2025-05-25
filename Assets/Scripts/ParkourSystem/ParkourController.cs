@@ -28,18 +28,21 @@ public class ParkourController : MonoBehaviour
         if (playerController.isHanging) return;
         if (InAction) return;
         if (!playerController.isGrounded) return;
-        if (playerController.isCrouched) return;
 
         var hitData1 = environmentScanner.ObstackleCheck();
         var hitData2 = environmentScanner.BarrierCheck();
 
         if (Input.GetKeyDown(KeyCode.Space) && playerController.freeRun)
         {
+            if (playerController.isCrouched) playerController.UpdateCrouchMode(false);
+            if (playerController.isCrouched) return;
             StartCoroutine(DoParkourAction2(RunningJumpAction));
         }
 
         if (Input.GetKeyDown(KeyCode.Space) || playerController.freeRun)
         {
+            if (playerController.isCrouched) playerController.UpdateCrouchMode(false);
+            if (playerController.isCrouched) return;
             foreach (var action in parkourActions)
             {
                 if (action.CheckIfPossible(hitData1, transform))
@@ -64,7 +67,8 @@ public class ParkourController : MonoBehaviour
 
         if (playerController.IsOnLedge && !hitData1.forwardHitFound && (Input.GetKeyDown(KeyCode.Space) || playerController.freeRun))
         {
-
+            if (playerController.isCrouched) playerController.UpdateCrouchMode(false);
+            if (playerController.isCrouched) return;
             if (playerController.LedgeData.angle <= 50f)
             {
                 playerController.IsOnLedge = false;
@@ -153,6 +157,14 @@ public class ParkourController : MonoBehaviour
                 break;
             }
             yield return null;
+        }
+        if (environmentScanner.RoofCheck().IsThereShortRoof)
+        {
+            playerController.UpdateCrouchMode(true);
+        }
+        else
+        {
+            playerController.UpdateCrouchMode(false);
         }
         playerController.SetControl(true);
         FindFirstObjectByType<AudioManager>().PauseSound("Parkour");
