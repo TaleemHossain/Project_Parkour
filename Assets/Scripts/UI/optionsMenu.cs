@@ -12,10 +12,12 @@ public class optionsMenu : MonoBehaviour
     }
     public void SetQuality(int index)
     {
+        FindFirstObjectByType<AudioManager>().PlaySound("Click");
         QualitySettings.SetQualityLevel(index);
     }
     public void SetFullScreen(bool isFullScreen)
     {
+        FindFirstObjectByType<AudioManager>().PlaySound("Click");
         Screen.fullScreen = isFullScreen;
     }
 }

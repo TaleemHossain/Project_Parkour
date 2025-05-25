@@ -20,10 +20,12 @@ public class PauseMenu : MonoBehaviour
             {
                 if (IsPaused)
                 {
+                    FindFirstObjectByType<AudioManager>().PlaySound("Click");
                     Resume();
                 }
                 else
                 {
+                    FindFirstObjectByType<AudioManager>().PlaySound("Click");
                     Pause();
                 }
             }

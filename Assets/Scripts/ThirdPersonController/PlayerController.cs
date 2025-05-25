@@ -38,6 +38,8 @@ public class PlayerController : MonoBehaviour
     public bool isHanging = false;
     public bool isAiming = false;
     public bool CanPause = true;
+    int playStarted = 0; // 0 for false, 1 for walking, 2 for running, 3 for crouching
+    int cuurrentMode = 0;
     bool dead = false;
     bool completed = false;
     private float currentStamina;
@@ -85,6 +87,10 @@ public class PlayerController : MonoBehaviour
     }
     private void Update()
     {
+        if (dead || completed || !hasControl || !isGrounded || isHanging)
+        {
+            PauseSound();
+        }
         if (dead) return;
         if (completed) return;
         CheckDeath();
@@ -188,6 +194,18 @@ public class PlayerController : MonoBehaviour
             targetRotation = Quaternion.LookRotation(moveDir);
         }
         transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
+
+        if (isCrouched) cuurrentMode = 3;
+        else if (freeRun) cuurrentMode = 2;
+        else cuurrentMode = 1;
+        if (moveAmount > 0.1f && (playStarted == 0 || cuurrentMode != playStarted))
+        {
+            PlayOnMove();
+        }
+        if (moveAmount <= 0.1f)
+        {
+            PauseSound();
+        }
     }
     void GroundCheck()
     {
@@ -220,6 +238,33 @@ public class PlayerController : MonoBehaviour
     {
         get => hasControl;
         set => hasControl = value;
+    }
+    private void PlayOnMove()
+    {
+        if (!isGrounded) return;
+        else if (isHanging) return;
+        else if (isCrouched)
+        {
+            FindFirstObjectByType<AudioManager>().PlaySound("Crouching");
+            playStarted = 3;
+        }
+        else if (freeRun)
+        {
+            FindFirstObjectByType<AudioManager>().PlaySound("Running");
+            playStarted = 2;
+        }
+        else
+        {
+            FindFirstObjectByType<AudioManager>().PlaySound("Walking");
+            playStarted = 1;
+        }
+    }
+    private void PauseSound()
+    {
+        FindFirstObjectByType<AudioManager>().PauseSound("Crouching");
+        FindFirstObjectByType<AudioManager>().PauseSound("Walking");
+        FindFirstObjectByType<AudioManager>().PauseSound("Running");
+        playStarted = 0;
     }
     private void UpdateFreeRun()
     {
@@ -331,7 +376,7 @@ public class PlayerController : MonoBehaviour
                     if (isCrouched == false)
                     {
                         GameObject bullet = Instantiate(bulletPrefab, firePoint.position, firePoint.rotation);
-                        GameObject effect = Instantiate(muzzleFlash, firePoint.position, firePoint.rotation);
+                        GameObject effect = Instantiate(muzzleFlash, firePoint.position, firePoint.rotation * Quaternion.Euler(0f, 180f, 0f));
                         Destroy(effect, 0.1f);
                         rb = bullet.GetComponent<Rigidbody>();
 
@@ -340,7 +385,7 @@ public class PlayerController : MonoBehaviour
                     else
                     {
                         GameObject bullet = Instantiate(bulletPrefab, crfirePoint.position, crfirePoint.rotation);
-                        GameObject effect = Instantiate(muzzleFlash, crfirePoint.position, crfirePoint.rotation);
+                        GameObject effect = Instantiate(muzzleFlash, crfirePoint.position, crfirePoint.rotation * Quaternion.Euler(0f, 180f, 0f));
                         Destroy(effect, 0.1f);
                         rb = bullet.GetComponent<Rigidbody>();
 
@@ -361,11 +406,16 @@ public class PlayerController : MonoBehaviour
             }
             else
             {
+                if (reloadTimer <= 0.5f)
+                {
+                    FindFirstObjectByType<AudioManager>().PlaySound("Reload 1");
+                }
                 reloadTimer += Time.deltaTime;
                 if (reloadTimer >= ReloadTime)
                 {
                     reloadTimer = 0f;
                     bulletCount = 0;
+                    FindFirstObjectByType<AudioManager>().PauseSound("Reload 1");
                 }
             }
         }
@@ -420,6 +470,7 @@ public class PlayerController : MonoBehaviour
     }
     IEnumerator PlayerDeath()
     {
+        FindFirstObjectByType<AudioManager>().PlaySound("Disconnection");
         dead = true;
         SetControl(false);
         animator.Play("Death");

@@ -15,6 +15,7 @@ public class ParkourController : MonoBehaviour
     Animator animator;
     ClimbPointContainer climbPointContainer;
     public bool InAction = false;
+    bool SoundStarted = false;
     private void Awake()
     {
         playerController = GetComponent<PlayerController>();
@@ -74,6 +75,7 @@ public class ParkourController : MonoBehaviour
     IEnumerator DoParkourAction(ParkourAction action)
     {
         InAction = true;
+        FindFirstObjectByType<AudioManager>().PlaySound("Parkour");
         playerController.SetControl(false);
         animator.SetBool("mirrorAction", action.Mirror);
         animator.CrossFade(action.AnimName, 0.2f);
@@ -107,10 +109,12 @@ public class ParkourController : MonoBehaviour
         yield return new WaitForSeconds(action.PostActionDelay);
         playerController.SetControl(true);
         InAction = false;
+        FindFirstObjectByType<AudioManager>().PauseSound("Parkour");
     }
     IEnumerator DoParkourAction2(ParkourAction action)
     {
         InAction = true;
+        FindFirstObjectByType<AudioManager>().PlaySound("Parkour");
         animator.CrossFade(action.AnimName, 0.2f);
         yield return null;
         var animState = animator.GetNextAnimatorStateInfo(0);
@@ -121,11 +125,13 @@ public class ParkourController : MonoBehaviour
             GrabLedgeMidAir();
             yield return null;
         }
+        FindFirstObjectByType<AudioManager>().PauseSound("Parkour");
         InAction = false;
     }
     IEnumerator DoParkourAction(CrouchingActions action)
     {
         InAction = true;
+        FindFirstObjectByType<AudioManager>().PlaySound("Parkour");
         playerController.SetControl(false);
         animator.CrossFade(action.AnimName, 0.2f);
         yield return null;
@@ -149,6 +155,7 @@ public class ParkourController : MonoBehaviour
             yield return null;
         }
         playerController.SetControl(true);
+        FindFirstObjectByType<AudioManager>().PauseSound("Parkour");
         InAction = false;
     }
     public void GrabLedgeMidAir()

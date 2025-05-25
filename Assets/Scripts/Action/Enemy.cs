@@ -64,6 +64,7 @@ public class Enemy : MonoBehaviour
     }
     IEnumerator Death()
     {
+        FindFirstObjectByType<AudioManager>().PlaySound("Death 1");
         dead = true;
         animator.Play("Death");
         yield return new WaitForSeconds(3f);
@@ -105,7 +106,7 @@ public class Enemy : MonoBehaviour
     void Shoot()
     {
         GameObject bullet = Instantiate(bulletPrefab, firePoint.position, transform.rotation);
-        GameObject effect = Instantiate(muzzleFlash, firePoint.position, transform.rotation);
+        GameObject effect = Instantiate(muzzleFlash, firePoint.position, transform.rotation * Quaternion.Euler(0f, 180f, 0f));
         Destroy(effect, 0.1f);
         Rigidbody rb = bullet.GetComponent<Rigidbody>();
 
