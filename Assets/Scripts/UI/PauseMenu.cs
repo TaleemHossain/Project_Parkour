@@ -4,18 +4,28 @@ using UnityEngine.SceneManagement;
 public class PauseMenu : MonoBehaviour
 {
     public static bool IsPaused = false;
+    public GameObject player;
+    PlayerController playerController;
     public GameObject pauseMenuUI;
+    void Awake()
+    {
+        playerController = player.GetComponent<PlayerController>();
+    }
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Escape))
+        if (player == null) return;
+        if (playerController.CanPause)
         {
-            if (IsPaused)
+            if (Input.GetKeyDown(KeyCode.Escape))
             {
-                Resume();
-            }
-            else
-            {
-                Pause();
+                if (IsPaused)
+                {
+                    Resume();
+                }
+                else
+                {
+                    Pause();
+                }
             }
         }
     }

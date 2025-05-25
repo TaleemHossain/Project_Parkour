@@ -109,7 +109,14 @@ MonoBehaviour:
   freeRun: 0
   isHanging: 0
   isAiming: 0
+  CanPause: 1
   desiredMoveDir: {x: 0, y: 0, z: 0}
+  GameOverScene: {fileID: 0}
+  levelCompleteScene: {fileID: 0}
+  Targets:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
 --- !u!95 &9054584824492331673
 Animator:
   serializedVersion: 7

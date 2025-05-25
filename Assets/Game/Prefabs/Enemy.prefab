@@ -132,19 +132,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 16124f5233c4b7c44a99cee9e8d1ae5c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  HitPoint: 100
-  firePoint: {fileID: 4612977119535146360}
-  bulletPrefab: {fileID: 1530671323794307459, guid: 2b6dde9f6a6c90347a3932455206935e, type: 3}
-  muzzleFlash: {fileID: 100006, guid: 7e9c50938e32351438a7df9ccad2f2a5, type: 3}
-  fireRate: 5
+  HitPoint: 10
+  groundCheckRadius: 0.1
+  groundCheckOffset: {x: 0, y: 0, z: 0}
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 0
+  player: {fileID: 3178482687301420790, guid: c408db90dac20c7408b925132b43afbe, type: 3}
   visionRange: 15
   visionAngle: 90
   playerLayer:
     serializedVersion: 2
     m_Bits: 1
+  firePoint: {fileID: 4612977119535146360}
+  bulletPrefab: {fileID: 1530671323794307459, guid: 2b6dde9f6a6c90347a3932455206935e, type: 3}
+  muzzleFlash: {fileID: 100006, guid: 7e9c50938e32351438a7df9ccad2f2a5, type: 3}
+  fireRate: 5
   fireCooldown: 0
   spread: 0.1
-  player: {fileID: 3178482687301420790, guid: c408db90dac20c7408b925132b43afbe, type: 3}
 --- !u!136 &8909634901259550000
 CapsuleCollider:
   m_ObjectHideFlags: 0

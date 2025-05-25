@@ -3,7 +3,7 @@ using UnityEngine;
 public class TipTrigger : MonoBehaviour
 {
     public GameObject tipText;
-    public string message = "Press E to interact.";
+    public string message = "Hi";
 
     void Start()
     {
@@ -26,7 +26,6 @@ public class TipTrigger : MonoBehaviour
     {
         if (other.CompareTag("Player") && tipText != null)
         {
-            Debug.Log("Player left");
             tipText.SetActive(false);
         }
     }

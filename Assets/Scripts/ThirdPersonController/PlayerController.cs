@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.InteropServices.WindowsRuntime;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -36,7 +37,9 @@ public class PlayerController : MonoBehaviour
     public bool freeRun = false;
     public bool isHanging = false;
     public bool isAiming = false;
+    public bool CanPause = true;
     bool dead = false;
+    bool completed = false;
     private float currentStamina;
     bool shift;
     bool hasControl = true;
@@ -46,7 +49,11 @@ public class PlayerController : MonoBehaviour
     int bulletCount = 0;
     float reloadTimer = 0f;
     float fireCooldown = 0f;
+    float TotalTime;
     public Vector3 desiredMoveDir;
+    public GameObject GameOverScene;
+    public GameObject levelCompleteScene;
+    public List<GameObject> Targets;
     Vector3 moveDir;
     Vector3 velocity = Vector3.zero;
     Camera_Controller cameraController;
@@ -79,7 +86,12 @@ public class PlayerController : MonoBehaviour
     private void Update()
     {
         if (dead) return;
+        if (completed) return;
         CheckDeath();
+        if (dead) return;
+        CheckIfWon();
+        if (completed) return;
+        TotalTime += Time.deltaTime;
 
         float horizontal = Input.GetAxis("Horizontal");
         float vertical = Input.GetAxis("Vertical");
@@ -414,6 +426,25 @@ public class PlayerController : MonoBehaviour
         parkourController.InAction = true;
         characterController.enabled = false;
         yield return new WaitForSeconds(animator.GetCurrentAnimatorStateInfo(0).length);
-        // Destroy(gameObject);
-    }   
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+        CanPause = false;
+        GameOverScene.SetActive(true);
+    }
+    void CheckIfWon()
+    {
+        foreach (var target in Targets)
+        {
+            if (target != null)
+            {
+                return;
+            }
+        }
+        completed = true;
+        CanPause = false;
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+        levelCompleteScene.GetComponentInChildren<TMPro.TextMeshProUGUI>().text = "Congrats! You completed this level in " + TotalTime + " seconds";
+        levelCompleteScene.SetActive(true);
+    }
 }
