@@ -1,24 +1,26 @@
 using System.Collections;
 using UnityEngine;
 
-public class Target : MonoBehaviour
+public class Collectibles : MonoBehaviour
 {
     Animator animator;
-    [SerializeField] float HitPoint = 30f;
     void Awake()
     {
         animator = GetComponentInParent<Animator>();
     }
-    void Update()
+    private void OnTriggerEnter(Collider other)
     {
-        if (HitPoint <= 0f)
-        {
-            StartCoroutine(TargetDeath());
-        }
-    }
-    public void TakeDamage(float damage)
-    {
-        HitPoint -= damage;
+        if (!other.CompareTag("Player")) return;
+
+        // play SFX
+
+        // de-spawn VFX
+
+        var col = GetComponent<Collider>();
+        if (col) col.enabled = false;
+
+        StartCoroutine(TargetDeath());
+
     }
     IEnumerator TargetDeath()
     {
