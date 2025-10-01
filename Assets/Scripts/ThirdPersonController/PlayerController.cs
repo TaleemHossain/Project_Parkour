@@ -13,6 +13,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] public float rotationSpeed = 720f;
     [SerializeField] float SprintMult = 1.5f;
     [SerializeField] float CrouchMult = 0.75f;
+    [SerializeField] const float inputDeadzone = 0.1f;
 
     [Header("Ground Check settings")]
     [SerializeField] float groundCheckRadius = 0.1f;
@@ -58,7 +59,7 @@ public class PlayerController : MonoBehaviour
     public List<GameObject> Targets;
     Vector3 moveDir;
     Vector3 velocity = Vector3.zero;
-    Camera_Controller cameraController;
+    [SerializeField] private Transform cameraController;
     Animator animator;
     CharacterController characterController;
     ParkourController parkourController;
@@ -74,11 +75,11 @@ public class PlayerController : MonoBehaviour
     }
     private void Awake()
     {
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
         currentStamina = maxStamina;
         animator = GetComponent<Animator>();
         if (animator == null) Debug.LogError("Animator component is missing on " + gameObject.name);
-        cameraController = Camera.main.GetComponent<Camera_Controller>();
-        if (cameraController == null) Debug.LogError("Camera_Controller component is missing on Main Camera");
         characterController = GetComponent<CharacterController>();
         if (characterController == null) Debug.LogError("CharacterController component is missing on " + gameObject.name);
         environmentScanner = GetComponent<EnvironmentScanner>();
@@ -92,7 +93,6 @@ public class PlayerController : MonoBehaviour
             PauseSound();
         }
         if (dead) return;
-        if (completed) return;
         CheckDeath();
         if (dead) return;
         CheckIfWon();
@@ -101,22 +101,34 @@ public class PlayerController : MonoBehaviour
 
         float horizontal = Input.GetAxis("Horizontal");
         float vertical = Input.GetAxis("Vertical");
+
+        Vector2 rawInput = new Vector2(horizontal, vertical);
+        if (rawInput.magnitude < inputDeadzone)
+        {
+            horizontal = 0f;
+            vertical = 0f;
+        }
         float moveAmount = Mathf.Clamp(Mathf.Abs(horizontal) + Mathf.Abs(vertical), 0, 1);
 
-        Vector3 direction = new Vector3(horizontal, 0, vertical).normalized;
-        desiredMoveDir = cameraController.PlanarRotation * direction;
+        Vector3 direction = new Vector3(horizontal, 0, vertical);
+        if (direction.magnitude > 0.01f) direction.Normalize();
+
+        desiredMoveDir = cameraController.TransformDirection(direction);
+        desiredMoveDir.y = 0f;
+        if (desiredMoveDir.magnitude > 0.01f) desiredMoveDir.Normalize();
+        else desiredMoveDir = Vector3.zero;
+
         moveDir = desiredMoveDir;
 
-
-        if (isHanging)
-        {
-            cameraController.distance = 5f;
-            return;
-        }
-        else
-        {
-            cameraController.distance = 4f;
-        }
+        // if (isHanging)
+        // {
+        //     cameraController.distance = 5f;
+        //     return;
+        // }
+        // else
+        // {
+        //     cameraController.distance = 4f;
+        // }
 
         if (!hasControl) return;
 
@@ -125,13 +137,12 @@ public class PlayerController : MonoBehaviour
         UpdateFire();
 
         GroundCheck();
-        animator.SetBool("isGrounded", isGrounded);
 
         if (!isGrounded)
         {
             parkourController.GrabLedgeMidAir();
             ySpeed += Physics.gravity.y * Time.deltaTime;
-            velocity = transform.forward * moveSpeed / 2;
+            velocity = desiredMoveDir * (moveSpeed / 2f);
         }
         else
         {
@@ -171,17 +182,17 @@ public class PlayerController : MonoBehaviour
         float speedMultiplier;
         if (freeRun)
         {
-            cameraController.distance = 5f;
+            // cameraController.distance = 5f;
             speedMultiplier = SprintMult;
         }
         else if (isCrouched || isAiming)
         {
-            cameraController.distance = 3f;
+            // cameraController.distance = 3f;
             speedMultiplier = CrouchMult;
         }
         else
         {
-            cameraController.distance = 4f;
+            // cameraController.distance = 4f;
             speedMultiplier = 1f;
         }
         if (characterController.enabled)
@@ -189,11 +200,19 @@ public class PlayerController : MonoBehaviour
             characterController.Move(speedMultiplier * velocity * Time.deltaTime);
         }
 
-        if (moveAmount > 0 && moveDir.magnitude > 0.1f)
+        bool isMoving = moveAmount > 0.01f && moveDir.magnitude > 0.01f;
+
+        Vector3 flatMoveDir = Vector3.ProjectOnPlane(moveDir, Vector3.up);
+
+        if (isMoving && flatMoveDir.sqrMagnitude > 0.01f)
         {
-            targetRotation = Quaternion.LookRotation(moveDir);
+            targetRotation = Quaternion.LookRotation(flatMoveDir.normalized, Vector3.up);
+            transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
         }
-        transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
+        else
+        {
+            targetRotation = transform.rotation;
+        }
 
         if (isCrouched) cuurrentMode = 3;
         else if (freeRun) cuurrentMode = 2;
@@ -211,6 +230,7 @@ public class PlayerController : MonoBehaviour
     void GroundCheck()
     {
         isGrounded = Physics.CheckSphere(transform.TransformPoint(groundCheckOffset), groundCheckRadius, groundLayer);
+        animator.SetBool("isGrounded", isGrounded);
     }
     void LedgeMovement()
     {
@@ -330,6 +350,9 @@ public class PlayerController : MonoBehaviour
             }
             else
             {
+                Cursor.lockState = CursorLockMode.Confined;
+                Cursor.visible = true;
+                rotationSpeed = 30f;
                 isAiming = true;
                 parkourController.InAction = true;
                 freeRun = false;
@@ -349,10 +372,15 @@ public class PlayerController : MonoBehaviour
         {
             if (isAiming == false)
             {
+                rotationSpeed += Time.deltaTime * 50f;
+                rotationSpeed = Mathf.Clamp(rotationSpeed, 30f, 180f);
                 return;
             }
             else
             {
+                Cursor.lockState = CursorLockMode.Locked;
+                Cursor.visible = false;
+                rotationSpeed += Time.deltaTime * 50f;
                 isAiming = false;
                 parkourController.InAction = false;
                 animator.SetBool("isAiming", false);
