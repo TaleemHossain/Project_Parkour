@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.InteropServices.WindowsRuntime;
+using NUnit.Framework;
 using Unity.Cinemachine;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -47,7 +48,7 @@ public class PlayerController : MonoBehaviour
     Vector3 moveDir;
     Vector3 velocity = Vector3.zero;
     [Header("Cameras")]
-    [SerializeField] Transform MainCamera;
+    [SerializeField] public Transform MainCamera;
     [SerializeField] Transform FreeLookCamera;
     CinemachineCamera FreeLookCam;
     Animator animator;
@@ -78,15 +79,13 @@ public class PlayerController : MonoBehaviour
     }
     private void Update()
     {
-        if (dead || completed || !hasControl || !isGrounded || isHanging)
-        {
-            PauseSound();
-        }
-        if (dead) return;
+        if (dead || completed || !hasControl || !isGrounded || isHanging) PauseSound();
         CheckDeath();
-        if (dead) return;
         CheckIfWon();
+        if (dead) return;
         if (completed) return;
+        if(isHanging) return;
+        if (!hasControl) return;
         TotalTime += Time.deltaTime;
 
         float horizontal = Input.GetAxis("Horizontal");
@@ -100,7 +99,7 @@ public class PlayerController : MonoBehaviour
         }
         float moveAmount = Mathf.Clamp(Mathf.Abs(horizontal) + Mathf.Abs(vertical), 0, 1);
 
-        Vector3 direction = new Vector3(horizontal, 0, vertical);
+        Vector3 direction = new (horizontal, 0f, vertical);
         if (direction.magnitude > 0.01f) direction.Normalize();
 
         desiredMoveDir = MainCamera.TransformDirection(direction);
@@ -110,46 +109,23 @@ public class PlayerController : MonoBehaviour
 
         moveDir = desiredMoveDir;
 
-        if (isHanging)
-        {
-            FreeLookCam.Lens.FieldOfView = 50f;
-            return;
-        }
-        else
-        {
-            FreeLookCam.Lens.FieldOfView = 40f;
-        }
-
-        if (!hasControl) return;
-
         bool aiming = Input.GetMouseButton(1);
         aimController.UpdateAim(aiming);
         aimController.UpdateFire();
 
         GroundCheck();
-
         velocity.y = ySpeed;
 
-        float speedMultiplier;
-        if (freeRun)
-        {
-            FreeLookCam.Lens.FieldOfView = 50f;
-            speedMultiplier = SprintMult;
-        }
-        else if (isCrouched || aimController.isAiming)
-        {
-            FreeLookCam.Lens.FieldOfView = 30f;
-            speedMultiplier = CrouchMult;
-        }
-        else
-        {
-            FreeLookCam.Lens.FieldOfView = 40f;
-            speedMultiplier = 1f;
-        }
+        float speedMultiplier = 1f;
+        if (freeRun) speedMultiplier = SprintMult;
+        if (isCrouched) speedMultiplier = CrouchMult;
+
+        if (freeRun) FreeLookCam.Lens.FieldOfView = 50f;
+        else if (isCrouched) FreeLookCam.Lens.FieldOfView = 30f;
+        else FreeLookCam.Lens.FieldOfView = 40f;
+
         if (characterController.enabled)
-        {
             characterController.Move(speedMultiplier * Time.deltaTime * velocity);
-        }
 
         bool isMoving = moveAmount > 0.01f && moveDir.magnitude > 0.01f;
 
@@ -377,9 +353,10 @@ public class PlayerController : MonoBehaviour
     }
     void CheckDeath()
     {
-        if (HitPoint <= 0f)
+        if (HitPoint <= 0f && !dead)
         {
             StartCoroutine(PlayerDeath());
+            dead = true;
         }
     }
     IEnumerator PlayerDeath()
@@ -398,6 +375,7 @@ public class PlayerController : MonoBehaviour
     }
     void CheckIfWon()
     {
+        if (completed) return;
         foreach (var target in Targets)
         {
             if (target != null)

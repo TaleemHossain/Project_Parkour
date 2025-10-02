@@ -13,9 +13,9 @@ public class ParkourController : MonoBehaviour
     EnvironmentScanner environmentScanner;
     ClimbController climbController;
     Animator animator;
-    ClimbPointContainer climbPointContainer;
+    // ClimbPointContainer climbPointContainer;
     public bool InAction = false;
-    bool SoundStarted = false;
+    // bool SoundStarted = false;
     private void Awake()
     {
         playerController = GetComponent<PlayerController>();

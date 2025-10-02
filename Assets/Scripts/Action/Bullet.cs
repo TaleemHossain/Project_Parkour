@@ -2,9 +2,9 @@ using UnityEngine;
 
 public class Bullet : MonoBehaviour
 {
-    float speed = 30f;
-    float lifetime = 2f;
-    float damage = 10f;
+    [SerializeField] float speed = 30f;
+    [SerializeField] float lifetime = 2f;
+    [SerializeField] float damage = 10f;
     [SerializeField] GameObject hitEffect;
     void Start()
     {
@@ -14,9 +14,8 @@ public class Bullet : MonoBehaviour
 
     void Update()
     {
-        // transform.Translate(Vector3.forward * speed * Time.deltaTime);
         float moveDistance = speed * Time.deltaTime;
-        Ray ray = new Ray(transform.position, transform.forward);
+        Ray ray = new (transform.position, transform.forward);
 
         if (Physics.Raycast(ray, out RaycastHit hit, moveDistance))
         {
