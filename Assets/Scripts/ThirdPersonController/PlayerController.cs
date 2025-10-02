@@ -114,43 +114,12 @@ public class PlayerController : MonoBehaviour
         aimController.UpdateFire();
 
         GroundCheck();
-        velocity.y = ySpeed;
-
-        float speedMultiplier = 1f;
-        if (freeRun) speedMultiplier = SprintMult;
-        if (isCrouched) speedMultiplier = CrouchMult;
-
-        if (freeRun) FreeLookCam.Lens.FieldOfView = 50f;
-        else if (isCrouched) FreeLookCam.Lens.FieldOfView = 30f;
-        else FreeLookCam.Lens.FieldOfView = 40f;
-
-        if (characterController.enabled)
-            characterController.Move(speedMultiplier * Time.deltaTime * velocity);
-
-        bool isMoving = moveAmount > 0.01f && moveDir.magnitude > 0.01f;
-
-        Vector3 flatMoveDir = Vector3.ProjectOnPlane(moveDir, Vector3.up);
-
-        if (isMoving && flatMoveDir.sqrMagnitude > 0.01f)
-        {
-            targetRotation = Quaternion.LookRotation(flatMoveDir.normalized, Vector3.up);
-            transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
-        }
-        else
-        {
-            targetRotation = transform.rotation;
-        }
-        Sfx(moveAmount);
-    }
-    void GroundCheck()
-    {
-        isGrounded = Physics.CheckSphere(transform.TransformPoint(groundCheckOffset), groundCheckRadius, groundLayer);
         animator.SetBool("isGrounded", isGrounded);
         if (!isGrounded)
         {
             parkourController.GrabLedgeMidAir();
             ySpeed += Physics.gravity.y * Time.deltaTime;
-            velocity = desiredMoveDir * (moveSpeed / 2f);
+            velocity = desiredMoveDir * (moveSpeed / 4f);
         }
         else
         {
@@ -185,6 +154,37 @@ public class PlayerController : MonoBehaviour
                 animator.SetFloat("moveAmount", 0f);
             }
         }
+        velocity.y = ySpeed;
+
+        float speedMultiplier = 1f;
+        if (freeRun) speedMultiplier = SprintMult;
+        if (isCrouched) speedMultiplier = CrouchMult;
+
+        if (freeRun) FreeLookCam.Lens.FieldOfView = 50f;
+        else if (isCrouched) FreeLookCam.Lens.FieldOfView = 30f;
+        else FreeLookCam.Lens.FieldOfView = 40f;
+
+        if (characterController.enabled)
+            characterController.Move(speedMultiplier * Time.deltaTime * velocity);
+
+        bool isMoving = moveAmount > 0.01f && moveDir.magnitude > 0.01f;
+
+        Vector3 flatMoveDir = Vector3.ProjectOnPlane(moveDir, Vector3.up);
+
+        if (isMoving && flatMoveDir.sqrMagnitude > 0.01f)
+        {
+            targetRotation = Quaternion.LookRotation(flatMoveDir.normalized, Vector3.up);
+            transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
+        }
+        else
+        {
+            targetRotation = transform.rotation;
+        }
+        Sfx(moveAmount);
+    }
+    void GroundCheck()
+    {
+        isGrounded = Physics.CheckSphere(transform.TransformPoint(groundCheckOffset), groundCheckRadius, groundLayer);
     }
     void LedgeMovement()
     {
