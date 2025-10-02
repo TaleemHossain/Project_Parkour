@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.InteropServices.WindowsRuntime;
+using Unity.Cinemachine;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -13,7 +14,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] public float rotationSpeed = 720f;
     [SerializeField] float SprintMult = 1.5f;
     [SerializeField] float CrouchMult = 0.75f;
-    [SerializeField] const float inputDeadzone = 0.1f;
+    [SerializeField] float inputDeadzone = 0.1f;
 
     [Header("Ground Check settings")]
     [SerializeField] float groundCheckRadius = 0.1f;
@@ -21,23 +22,12 @@ public class PlayerController : MonoBehaviour
     [SerializeField] LayerMask groundLayer;
     [Header("Stamina settings")]
     [SerializeField] float maxStamina = 15f;
-    [Header("Gun Settings")]
-    [SerializeField] GameObject GunHolder;
-    [SerializeField] float ReloadTime = 3f;
-    [SerializeField] float bulltetTimeGap = 0.1f;
-    [SerializeField] GameObject bulletPrefab;
-    [SerializeField] Transform firePoint;
-    [SerializeField] Transform crfirePoint;
-    [SerializeField] float bulletSpeed = 30f;
-    [SerializeField] float spread = 0.05f;
-    [SerializeField] GameObject muzzleFlash;
     [Header("Boolean Variables")]
     bool isResting = false;
     public bool isGrounded;
     public bool isCrouched = false;
     public bool freeRun = false;
     public bool isHanging = false;
-    public bool isAiming = false;
     public bool CanPause = true;
     int playStarted = 0; // 0 for false, 1 for walking, 2 for running, 3 for crouching
     int cuurrentMode = 0;
@@ -49,9 +39,6 @@ public class PlayerController : MonoBehaviour
     public bool IsOnLedge { get; set; }
     public EnvironmentScanner.LedgeData LedgeData { get; set; }
     float ySpeed = 0f;
-    int bulletCount = 0;
-    float reloadTimer = 0f;
-    float fireCooldown = 0f;
     float TotalTime;
     public Vector3 desiredMoveDir;
     public GameObject GameOverScene;
@@ -59,12 +46,16 @@ public class PlayerController : MonoBehaviour
     public List<GameObject> Targets;
     Vector3 moveDir;
     Vector3 velocity = Vector3.zero;
-    [SerializeField] private Transform cameraController;
+    [Header("Cameras")]
+    [SerializeField] Transform MainCamera;
+    [SerializeField] Transform FreeLookCamera;
+    CinemachineCamera FreeLookCam;
     Animator animator;
     CharacterController characterController;
     ParkourController parkourController;
     EnvironmentScanner environmentScanner;
     Quaternion targetRotation;
+    AimController aimController;
     public class MatchTargetParameters
     {
         public Vector3 pos;
@@ -79,12 +70,11 @@ public class PlayerController : MonoBehaviour
         Cursor.visible = false;
         currentStamina = maxStamina;
         animator = GetComponent<Animator>();
-        if (animator == null) Debug.LogError("Animator component is missing on " + gameObject.name);
         characterController = GetComponent<CharacterController>();
-        if (characterController == null) Debug.LogError("CharacterController component is missing on " + gameObject.name);
         environmentScanner = GetComponent<EnvironmentScanner>();
-        if (environmentScanner == null) Debug.LogError("EnvironmentScanner component is missing on " + gameObject.name);
         parkourController = GetComponent<ParkourController>();
+        aimController = GetComponent<AimController>();
+        FreeLookCam = FreeLookCamera.GetComponent<CinemachineCamera>();
     }
     private void Update()
     {
@@ -113,31 +103,73 @@ public class PlayerController : MonoBehaviour
         Vector3 direction = new Vector3(horizontal, 0, vertical);
         if (direction.magnitude > 0.01f) direction.Normalize();
 
-        desiredMoveDir = cameraController.TransformDirection(direction);
+        desiredMoveDir = MainCamera.TransformDirection(direction);
         desiredMoveDir.y = 0f;
         if (desiredMoveDir.magnitude > 0.01f) desiredMoveDir.Normalize();
         else desiredMoveDir = Vector3.zero;
 
         moveDir = desiredMoveDir;
 
-        // if (isHanging)
-        // {
-        //     cameraController.distance = 5f;
-        //     return;
-        // }
-        // else
-        // {
-        //     cameraController.distance = 4f;
-        // }
+        if (isHanging)
+        {
+            FreeLookCam.Lens.FieldOfView = 50f;
+            return;
+        }
+        else
+        {
+            FreeLookCam.Lens.FieldOfView = 40f;
+        }
 
         if (!hasControl) return;
 
         bool aiming = Input.GetMouseButton(1);
-        UpdateAim(aiming);
-        UpdateFire();
+        aimController.UpdateAim(aiming);
+        aimController.UpdateFire();
 
         GroundCheck();
 
+        velocity.y = ySpeed;
+
+        float speedMultiplier;
+        if (freeRun)
+        {
+            FreeLookCam.Lens.FieldOfView = 50f;
+            speedMultiplier = SprintMult;
+        }
+        else if (isCrouched || aimController.isAiming)
+        {
+            FreeLookCam.Lens.FieldOfView = 30f;
+            speedMultiplier = CrouchMult;
+        }
+        else
+        {
+            FreeLookCam.Lens.FieldOfView = 40f;
+            speedMultiplier = 1f;
+        }
+        if (characterController.enabled)
+        {
+            characterController.Move(speedMultiplier * Time.deltaTime * velocity);
+        }
+
+        bool isMoving = moveAmount > 0.01f && moveDir.magnitude > 0.01f;
+
+        Vector3 flatMoveDir = Vector3.ProjectOnPlane(moveDir, Vector3.up);
+
+        if (isMoving && flatMoveDir.sqrMagnitude > 0.01f)
+        {
+            targetRotation = Quaternion.LookRotation(flatMoveDir.normalized, Vector3.up);
+            transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
+        }
+        else
+        {
+            targetRotation = transform.rotation;
+        }
+        Sfx(moveAmount);
+    }
+    void GroundCheck()
+    {
+        isGrounded = Physics.CheckSphere(transform.TransformPoint(groundCheckOffset), groundCheckRadius, groundLayer);
+        animator.SetBool("isGrounded", isGrounded);
         if (!isGrounded)
         {
             parkourController.GrabLedgeMidAir();
@@ -155,7 +187,7 @@ public class PlayerController : MonoBehaviour
             }
 
             shift = Input.GetKey(KeyCode.LeftShift);
-            if (!isAiming)
+            if (!aimController.isAiming)
             {
                 UpdateFreeRun();
             }
@@ -177,60 +209,6 @@ public class PlayerController : MonoBehaviour
                 animator.SetFloat("moveAmount", 0f);
             }
         }
-        velocity.y = ySpeed;
-
-        float speedMultiplier;
-        if (freeRun)
-        {
-            // cameraController.distance = 5f;
-            speedMultiplier = SprintMult;
-        }
-        else if (isCrouched || isAiming)
-        {
-            // cameraController.distance = 3f;
-            speedMultiplier = CrouchMult;
-        }
-        else
-        {
-            // cameraController.distance = 4f;
-            speedMultiplier = 1f;
-        }
-        if (characterController.enabled)
-        {
-            characterController.Move(speedMultiplier * velocity * Time.deltaTime);
-        }
-
-        bool isMoving = moveAmount > 0.01f && moveDir.magnitude > 0.01f;
-
-        Vector3 flatMoveDir = Vector3.ProjectOnPlane(moveDir, Vector3.up);
-
-        if (isMoving && flatMoveDir.sqrMagnitude > 0.01f)
-        {
-            targetRotation = Quaternion.LookRotation(flatMoveDir.normalized, Vector3.up);
-            transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
-        }
-        else
-        {
-            targetRotation = transform.rotation;
-        }
-
-        if (isCrouched) cuurrentMode = 3;
-        else if (freeRun) cuurrentMode = 2;
-        else cuurrentMode = 1;
-        if (moveAmount > 0.1f && (playStarted == 0 || cuurrentMode != playStarted))
-        {
-            PauseSound();
-            PlayOnMove();
-        }
-        if (moveAmount <= 0.1f)
-        {
-            PauseSound();
-        }
-    }
-    void GroundCheck()
-    {
-        isGrounded = Physics.CheckSphere(transform.TransformPoint(groundCheckOffset), groundCheckRadius, groundLayer);
-        animator.SetBool("isGrounded", isGrounded);
     }
     void LedgeMovement()
     {
@@ -259,6 +237,21 @@ public class PlayerController : MonoBehaviour
     {
         get => hasControl;
         set => hasControl = value;
+    }
+    void Sfx(float moveAmount)
+    {
+        if (isCrouched) cuurrentMode = 3;
+        else if (freeRun) cuurrentMode = 2;
+        else cuurrentMode = 1;
+        if (moveAmount > 0.1f && (playStarted == 0 || cuurrentMode != playStarted))
+        {
+            PauseSound();
+            PlayOnMove();
+        }
+        if (moveAmount <= 0.1f)
+        {
+            PauseSound();
+        }
     }
     private void PlayOnMove()
     {
@@ -328,129 +321,18 @@ public class PlayerController : MonoBehaviour
         if (!state && environmentScanner.RoofCheck().IsThereShortRoof)
             return;
         isCrouched = state;
-        if (isCrouched && !isAiming)
+        if (isCrouched && !aimController.isAiming)
         {
             animator.CrossFade("CrouchLocomotion", 0.2f);
         }
-        if (isCrouched && isAiming)
+        if (isCrouched && aimController.isAiming)
         {
             animator.CrossFade("Aiming Actions.Crouching", 0.2f);
         }
         animator.SetBool("isCrouched", isCrouched);
-        characterController.height = isCrouched ? 1.26f : 1.8f;
-        characterController.center = isCrouched ? new Vector3(0.12f, 0.66f, 0.2f) : new Vector3(0f, 0.925f, 0.1f);
-    }
-    void UpdateAim(bool state)
-    {
-        if (state == true)
-        {
-            if (isAiming == true)
-            {
-                return;
-            }
-            else
-            {
-                Cursor.lockState = CursorLockMode.Confined;
-                Cursor.visible = true;
-                rotationSpeed = 60f;
-                isAiming = true;
-                parkourController.InAction = true;
-                freeRun = false;
-                animator.SetBool("isAiming", true);
-                if (isCrouched)
-                {
-                    animator.CrossFade("Aiming Actions.Crouching", 0.2f);
-                }
-                else
-                {
-                    animator.CrossFade("Aiming Actions.Standing", 0.2f);
-                }
-                GunHolder.SetActive(true);
-            }
-        }
-        else
-        {
-            if (isAiming == false)
-            {
-                if (rotationSpeed < 360f)
-                {
-                    rotationSpeed += Time.deltaTime * 100f;
-                    rotationSpeed = Mathf.Clamp(rotationSpeed, 60f, 360f);
-                }
-                return;
-            }
-            else
-            {
-                Cursor.lockState = CursorLockMode.Locked;
-                Cursor.visible = false;
-                rotationSpeed += Time.deltaTime * 100f;
-                isAiming = false;
-                parkourController.InAction = false;
-                animator.SetBool("isAiming", false);
-                GunHolder.SetActive(false);
-            }
-        }
-    }
-    void UpdateFire()
-    {
-        reloadTimer += Time.deltaTime;
-        fireCooldown += Time.deltaTime;
-        if (isAiming == false) return;
-        else
-        {
-            bool fireButton = Input.GetMouseButton(0);
-            if (bulletCount < 30)
-            {
-                if (fireButton && fireCooldown >= bulltetTimeGap)
-                {
-                    Rigidbody rb;
-                    Vector3 shootDirection;
-                    if (isCrouched == false)
-                    {
-                        GameObject bullet = Instantiate(bulletPrefab, firePoint.position, firePoint.rotation);
-                        GameObject effect = Instantiate(muzzleFlash, firePoint.position, firePoint.rotation * Quaternion.Euler(0f, 180f, 0f));
-                        Destroy(effect, 0.1f);
-                        rb = bullet.GetComponent<Rigidbody>();
-
-                        shootDirection = firePoint.forward;
-                    }
-                    else
-                    {
-                        GameObject bullet = Instantiate(bulletPrefab, crfirePoint.position, crfirePoint.rotation);
-                        GameObject effect = Instantiate(muzzleFlash, crfirePoint.position, crfirePoint.rotation * Quaternion.Euler(0f, 180f, 0f));
-                        Destroy(effect, 0.1f);
-                        rb = bullet.GetComponent<Rigidbody>();
-
-                        shootDirection = crfirePoint.forward;
-                    }
-                    shootDirection += new Vector3(
-                        Random.Range(-spread, spread),
-                        Random.Range(-spread, spread),
-                        Random.Range(-spread, spread)
-                    );
-                    shootDirection.Normalize();
-
-                    rb.linearVelocity = shootDirection * bulletSpeed;
-                    bulletCount++;
-                    fireCooldown = 0f;
-                    reloadTimer = 0f;
-                }
-            }
-            else
-            {
-                if (reloadTimer <= 0.5f)
-                {
-                    FindFirstObjectByType<AudioManager>().PlaySound("Reload 1");
-                }
-                reloadTimer += Time.deltaTime;
-                if (reloadTimer >= ReloadTime)
-                {
-                    reloadTimer = 0f;
-                    bulletCount = 0;
-                    FindFirstObjectByType<AudioManager>().PauseSound("Reload 1");
-                }
-            }
-        }
+        characterController.height = isCrouched ? 1.28f : 1.8f;
+        characterController.center = isCrouched ? new Vector3(0.12f, 0.665f, 0.2f) : new Vector3(0f, 0.925f, 0.1f);
+        aimController.FollowCam.VerticalArmLength = isCrouched ? 1f : 1.5f;
     }
     public IEnumerator DoAction(string animName, Quaternion TargetRotation = new Quaternion(), MatchTargetParameters matchTarget = null, bool rotate = false, float postActionDelay = 0f, bool mirror = false)
     {
