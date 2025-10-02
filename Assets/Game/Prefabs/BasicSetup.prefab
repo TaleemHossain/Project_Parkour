@@ -240,8 +240,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 525861478058432568}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.3192799, y: 1.7500001, z: 0.83239985}
+  m_LocalRotation: {x: 0.053117607, y: 0.0000000123271, z: -6.5571176e-10, w: 0.99858826}
+  m_LocalPosition: {x: -0.18072009, y: 2.2448153, z: -1.8327279}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -280,7 +280,7 @@ Camera:
     height: 1
   near clip plane: 0.1
   far clip plane: 5000
-  field of view: 50
+  field of view: 60
   orthographic: 0
   orthographic size: 10
   m_Depth: -1
@@ -1367,8 +1367,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2312539787050038960}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.053656537, y: 5.279686e-10, z: -2.8369886e-11, w: 0.9985595}
-  m_LocalPosition: {x: -0.18072009, y: 2.2448153, z: -1.7925801}
+  m_LocalRotation: {x: 0.053117607, y: 0.000000012327101, z: -6.557119e-10, w: 0.99858826}
+  m_LocalPosition: {x: -0.18072009, y: 2.2448153, z: -1.8327279}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1387,8 +1387,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Priority:
-    Enabled: 0
-    m_Value: 0
+    Enabled: 1
+    m_Value: 1
   OutputChannel: 1
   StandbyUpdate: 2
   m_StreamingVersion: 20241001
@@ -1446,7 +1446,7 @@ MonoBehaviour:
       Radius: 4
       Height: 0
     Bottom:
-      Radius: 3.5
+      Radius: 3
       Height: -1
     SplineCurvature: 0.5
   RecenteringTarget: 2
@@ -1495,7 +1495,7 @@ MonoBehaviour:
   Composition:
     ScreenPosition: {x: 0, y: 0}
     DeadZone:
-      Enabled: 0
+      Enabled: 1
       Size: {x: 0.2, y: 0.2}
     HardLimits:
       Enabled: 0
@@ -1521,7 +1521,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a076c17fe76165e4f8ed21498b877bf9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Easing: 0
+  Easing: 0.25
   Modifiers: []
   references:
     version: 2
@@ -1548,7 +1548,7 @@ MonoBehaviour:
       Enabled: 1
       Input:
         InputAction: {fileID: -5630151704836100654, guid: 1d6e640e716dc4ff6989b73d02023f2b, type: 3}
-        Gain: 1
+        Gain: 0.25
         LegacyInput: 
         LegacyGain: 1
         CancelDeltaTime: 0
@@ -1561,7 +1561,7 @@ MonoBehaviour:
       Enabled: 1
       Input:
         InputAction: {fileID: -5630151704836100654, guid: 1d6e640e716dc4ff6989b73d02023f2b, type: 3}
-        Gain: -1
+        Gain: -0.25
         LegacyInput: 
         LegacyGain: 1
         CancelDeltaTime: 0
@@ -1574,7 +1574,7 @@ MonoBehaviour:
       Enabled: 1
       Input:
         InputAction: {fileID: 5082991133974614888, guid: 1d6e640e716dc4ff6989b73d02023f2b, type: 3}
-        Gain: -1
+        Gain: 0.25
         LegacyInput: 
         LegacyGain: 1
         CancelDeltaTime: 0
@@ -1981,7 +1981,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   HitPoint: 200
   moveSpeed: 5
-  rotationSpeed: 10
+  rotationSpeed: 540
   SprintMult: 1.5
   CrouchMult: 0.75
   groundCheckRadius: 0.17
@@ -2472,7 +2472,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Priority:
     Enabled: 0
-    m_Value: 0
+    m_Value: 1
   OutputChannel: 1
   StandbyUpdate: 2
   m_StreamingVersion: 20241001
@@ -2496,6 +2496,10 @@ MonoBehaviour:
   AnimatedTarget: {fileID: 8918201097506078816}
   LayerIndex: 0
   Instructions:
+  - FullHash: 0
+    Camera: {fileID: 5023406663371170062}
+    ActivateAfter: 0.1
+    MinDuration: 0.5
   - FullHash: 889501110
     Camera: {fileID: 9039791237407319938}
     ActivateAfter: 0.1
@@ -2505,6 +2509,22 @@ MonoBehaviour:
     ActivateAfter: 0.1
     MinDuration: 0.5
   - FullHash: -995164924
+    Camera: {fileID: 9039791237407319938}
+    ActivateAfter: 0.1
+    MinDuration: 0.5
+  - FullHash: -1793379772
+    Camera: {fileID: 9039791237407319938}
+    ActivateAfter: 0.1
+    MinDuration: 0.5
+  - FullHash: 767637739
+    Camera: {fileID: 9039791237407319938}
+    ActivateAfter: 0.1
+    MinDuration: 0.5
+  - FullHash: -1460602845
+    Camera: {fileID: 9039791237407319938}
+    ActivateAfter: 0.1
+    MinDuration: 0.5
+  - FullHash: -398312012
     Camera: {fileID: 9039791237407319938}
     ActivateAfter: 0.1
     MinDuration: 0.5
@@ -2957,7 +2977,7 @@ Transform:
   m_GameObject: {fileID: 4780764804736529275}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.3192799, y: 1.7500001, z: 0.83239985}
+  m_LocalPosition: {x: 0.3192799, y: 1.7500001, z: 1.3323998}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2977,7 +2997,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Priority:
     Enabled: 1
-    m_Value: 1
+    m_Value: 0
   OutputChannel: 1
   StandbyUpdate: 2
   m_StreamingVersion: 20241001
@@ -2987,7 +3007,7 @@ MonoBehaviour:
     LookAtTarget: {fileID: 0}
     CustomLookAtTarget: 0
   Lens:
-    FieldOfView: 50
+    FieldOfView: 40
     OrthographicSize: 10
     NearClipPlane: 0.1
     FarClipPlane: 5000
@@ -3022,9 +3042,9 @@ MonoBehaviour:
   ShoulderOffset: {x: 0.5, y: -0.4, z: 0}
   VerticalArmLength: 2.15
   CameraSide: 1
-  CameraDistance: 2.5
+  CameraDistance: 2
   AvoidObstacles:
-    Enabled: 1
+    Enabled: 0
     CollisionFilter:
       serializedVersion: 2
       m_Bits: 192

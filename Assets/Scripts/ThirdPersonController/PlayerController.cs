@@ -352,7 +352,7 @@ public class PlayerController : MonoBehaviour
             {
                 Cursor.lockState = CursorLockMode.Confined;
                 Cursor.visible = true;
-                rotationSpeed = 30f;
+                rotationSpeed = 60f;
                 isAiming = true;
                 parkourController.InAction = true;
                 freeRun = false;
@@ -372,15 +372,18 @@ public class PlayerController : MonoBehaviour
         {
             if (isAiming == false)
             {
-                rotationSpeed += Time.deltaTime * 50f;
-                rotationSpeed = Mathf.Clamp(rotationSpeed, 30f, 180f);
+                if (rotationSpeed < 360f)
+                {
+                    rotationSpeed += Time.deltaTime * 100f;
+                    rotationSpeed = Mathf.Clamp(rotationSpeed, 60f, 360f);
+                }
                 return;
             }
             else
             {
                 Cursor.lockState = CursorLockMode.Locked;
                 Cursor.visible = false;
-                rotationSpeed += Time.deltaTime * 50f;
+                rotationSpeed += Time.deltaTime * 100f;
                 isAiming = false;
                 parkourController.InAction = false;
                 animator.SetBool("isAiming", false);
