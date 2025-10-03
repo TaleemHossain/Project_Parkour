@@ -109,10 +109,6 @@ public class PlayerController : MonoBehaviour
 
         moveDir = desiredMoveDir;
 
-        bool aiming = Input.GetMouseButton(1);
-        aimController.UpdateAim(aiming);
-        aimController.UpdateFire();
-
         GroundCheck();
         animator.SetBool("isGrounded", isGrounded);
         if (!isGrounded)
@@ -181,6 +177,12 @@ public class PlayerController : MonoBehaviour
             targetRotation = transform.rotation;
         }
         Sfx(moveAmount);
+    }
+    void LateUpdate()
+    {
+        bool aiming = Input.GetMouseButton(1);
+        aimController.UpdateAim(aiming);
+        aimController.UpdateFire();
     }
     void GroundCheck()
     {
@@ -387,7 +389,7 @@ public class PlayerController : MonoBehaviour
         CanPause = false;
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
-        levelCompleteScene.GetComponentInChildren<TMPro.TextMeshProUGUI>().text = "Congrats! You completed this level in " + TotalTime + " seconds";
+        levelCompleteScene.GetComponentInChildren<TMPro.TextMeshProUGUI>().text = "Congrats! You Completed this Level\nIn " + TotalTime + " seconds";
         levelCompleteScene.SetActive(true);
     }
 }

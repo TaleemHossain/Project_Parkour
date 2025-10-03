@@ -8,7 +8,6 @@ public class Bullet : MonoBehaviour
     [SerializeField] GameObject hitEffect;
     void Start()
     {
-        // transform.Rotate(90f, 0f, 0f, Space.Self);
         Destroy(gameObject, lifetime);
     }
 

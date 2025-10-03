@@ -347,7 +347,7 @@ Transform:
   m_GameObject: {fileID: 525861478058432568}
   serializedVersion: 2
   m_LocalRotation: {x: 0.053117607, y: 0.0000000123271, z: -6.5571176e-10, w: 0.99858826}
-  m_LocalPosition: {x: -0.18071997, y: 1.5738151, z: 7.116867}
+  m_LocalPosition: {x: -0.18072009, y: 1.5738151, z: 7.116872}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2089,8 +2089,6 @@ MonoBehaviour:
   levelCompleteScene: {fileID: 865245039715484844}
   Targets:
   - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
   MainCamera: {fileID: 8959286973663828263}
   FreeLookCamera: {fileID: 6005732737379095246}
 --- !u!114 &6540077692408741896
@@ -2114,7 +2112,7 @@ MonoBehaviour:
   bulletPrefab: {fileID: 1530671323794307459, guid: 2b6dde9f6a6c90347a3932455206935e, type: 3}
   firePoint: {fileID: 8297922727679711843}
   crfirePoint: {fileID: 2188804563464117706}
-  bulletSpeed: 30
+  bulletSpeed: 100
   spread: 0.01
   muzzleFlash: {fileID: 100006, guid: 7e9c50938e32351438a7df9ccad2f2a5, type: 3}
   Weapon: {fileID: 9210437172051497457}
@@ -2122,11 +2120,11 @@ MonoBehaviour:
   aimTarget: {fileID: 755387723102525534}
   cameraFollow: {fileID: 563289344809523689}
   aimOffset: {x: 0, y: 0, z: 0}
-  fixedAimDistance: 60
-  bodyYawSpeed: 300
+  fixedAimDistance: 200
+  bodyYawSpeed: 360
   mouseSensitivity: 1
-  minPitch: -10
-  maxPitch: 45
+  minPitch: -15
+  maxPitch: 15
   crosshair: {fileID: 384699084611221685}
   isAiming: 0
 --- !u!95 &8918201097506078816
